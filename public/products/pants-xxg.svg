@@ -1,0 +1,9 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#F3EDFF"/>
+  <rect x="82" y="34" width="336" height="292" rx="28" fill="#FFFFFF" stroke="#DDD1F6" stroke-width="4"/>
+  <rect x="82" y="34" width="336" height="74" rx="28" fill="#442E75"/>
+  <text x="250" y="80" text-anchor="middle" font-family="Arial" font-size="28" font-weight="800" fill="#FFFFFF">Pampers Pants</text>
+  <path d="M170 146H330L314 244H186L170 146Z" fill="#F6EBD8" stroke="#29326D" stroke-width="4"/>
+  <rect x="128" y="254" width="244" height="40" rx="16" fill="#FDF90F"/>
+  <text x="250" y="280" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">XXG · 46</text>
+</svg>

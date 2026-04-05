@@ -1,0 +1,10 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#EEF4FF"/>
+  <rect x="80" y="36" width="340" height="288" rx="28" fill="#FFFFFF" stroke="#D6E0F5" stroke-width="4"/>
+  <rect x="80" y="36" width="340" height="76" rx="28" fill="#29326D"/>
+  <text x="250" y="84" text-anchor="middle" font-family="Arial" font-size="30" font-weight="800" fill="#FFFFFF">Huggies Active Sec</text>
+  <rect x="128" y="136" width="244" height="92" rx="24" fill="#E7ECFF"/>
+  <text x="250" y="192" text-anchor="middle" font-family="Arial" font-size="52" font-weight="800" fill="#442E75">M</text>
+  <rect x="128" y="244" width="244" height="42" rx="16" fill="#FDF90F"/>
+  <text x="250" y="272" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">50 unidades</text>
+</svg>

@@ -1,0 +1,7 @@
+<svg width="160" height="160" viewBox="0 0 160 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="160" height="160" rx="36" fill="#442E75"/>
+  <circle cx="80" cy="80" r="54" fill="#FFFFFF"/>
+  <path d="M48 86L80 56L112 86" stroke="#29326D" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M60 86V111H100V86" fill="#FDF90F" stroke="#29326D" stroke-width="8" stroke-linejoin="round"/>
+  <text x="80" y="132" text-anchor="middle" font-family="Arial, sans-serif" font-size="16" font-weight="700" fill="#29326D">PAÑAL</text>
+</svg>

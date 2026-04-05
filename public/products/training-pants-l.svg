@@ -1,0 +1,9 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#FFF0F7"/>
+  <rect x="84" y="38" width="332" height="284" rx="28" fill="#FFFFFF" stroke="#F0D4E8" stroke-width="4"/>
+  <rect x="84" y="38" width="332" height="72" rx="28" fill="#C34D8A"/>
+  <text x="250" y="83" text-anchor="middle" font-family="Arial" font-size="28" font-weight="800" fill="#FFFFFF">Training Pants</text>
+  <path d="M175 140H325L305 245H195L175 140Z" fill="#F7E5EE" stroke="#7B2F59" stroke-width="4"/>
+  <rect x="130" y="252" width="240" height="40" rx="16" fill="#FDF90F"/>
+  <text x="250" y="278" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">L · 38 unidades</text>
+</svg>

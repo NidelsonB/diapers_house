@@ -1,36 +1,112 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# La Casa del Pañal
 
-## Getting Started
+Tienda web moderna, responsive y lista para presentación comercial, con **sitio público** y **panel administrador** dentro de la misma plataforma.
 
-First, run the development server:
+---
+
+## ✨ Stack elegido
+
+- **Next.js 16 + React 19 + TypeScript**
+  - Excelente rendimiento, SEO básico y estructura escalable.
+- **Tailwind CSS 4**
+  - Permite una UI moderna, limpia y consistente.
+- **Estado local + localStorage**
+  - Ideal para este MVP funcional sin backend real todavía.
+
+> Esta base quedó preparada para crecer luego a autenticación robusta, base de datos real y pagos en línea.
+
+---
+
+## ✅ Funcionalidades incluidas
+
+### Sitio público
+- Home visual con hero/banner principal
+- Beneficios y mensajes de confianza
+- Catálogo con búsqueda y filtros
+- Fichas de producto
+- Carrito de compras
+- Checkout claro
+- Página de contacto y sucursales
+- Botón flotante de WhatsApp
+- Diseño responsive para móvil, tablet y escritorio
+
+### Panel administrador
+- Login de administrador
+- CRUD de productos
+- CRUD de categorías
+- Gestión de stock y precios
+- Gestión de pedidos y estados
+- Gestión de contenido general del home y sucursales
+- Dashboard con métricas básicas
+- Validaciones y confirmaciones de borrado
+
+---
+
+## 🔐 Acceso demo al panel
+
+- **URL:** `/admin/login`
+- **Correo:** `admin@lacasadelpanal.com`
+- **Contraseña:** `Admin123*`
+
+---
+
+## 🚀 Ejecutar localmente
 
 ```bash
+npm install
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Abrir en el navegador:
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+http://localhost:3000
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Para validar la versión de producción:
 
-## Learn More
+```bash
+npm run build
+npm start
+```
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📁 Estructura principal
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```text
+src/
+  app/              # Rutas públicas y admin
+  components/       # Componentes reutilizables
+  data/             # Datos demo iniciales
+  lib/              # Utilidades
+  providers/        # Estado global del sitio
+  types/            # Tipos TypeScript
+public/
+  brand/            # Branding visual
+  products/         # Imágenes demo del catálogo
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🧪 Datos demo y comportamiento
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Los productos, categorías, pedidos y contenido general se cargan con datos de ejemplo realistas.
+- Los cambios hechos en el panel se guardan en `localStorage` para la demo.
+- El botón **Reset demo** restaura el estado inicial.
+
+---
+
+## 🔮 Siguientes pasos recomendados para producción
+
+1. Integrar base de datos real (`PostgreSQL` + `Prisma`)
+2. Agregar autenticación segura (`NextAuth` o similar)
+3. Integrar pagos (`Mercado Pago` o `Stripe`)
+4. Subida real de imágenes a cloud storage
+5. Gestión avanzada de clientes y pedidos
+
+---
+
+## 📌 Estado actual
+
+Proyecto listo para mostrar a cliente como **MVP profesional**, con buena base técnica y visual para evolucionar a una tienda real.

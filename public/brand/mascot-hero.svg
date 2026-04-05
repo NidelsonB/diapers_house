@@ -1,0 +1,25 @@
+<svg width="800" height="800" viewBox="0 0 800 800" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="800" height="800" rx="48" fill="#F7F7FB"/>
+  <ellipse cx="402" cy="724" rx="170" ry="34" fill="#FDF90F" opacity="0.55"/>
+  <ellipse cx="400" cy="190" rx="170" ry="150" fill="#F6EBD8"/>
+  <ellipse cx="400" cy="430" rx="225" ry="230" fill="#F6EBD8"/>
+  <rect x="250" y="78" width="300" height="116" rx="54" fill="#442E75"/>
+  <path d="M218 210C236 150 284 114 355 104H512C560 110 590 136 606 184L612 220H218V210Z" fill="#5D46A1"/>
+  <text x="400" y="155" text-anchor="middle" font-family="Arial, sans-serif" font-size="54" font-weight="800" fill="#FFF7E6">PAÑALÍN</text>
+  <circle cx="332" cy="302" r="15" fill="#29326D"/>
+  <circle cx="468" cy="302" r="15" fill="#29326D"/>
+  <path d="M360 340C380 324 420 324 440 340" stroke="#29326D" stroke-width="10" stroke-linecap="round"/>
+  <path d="M320 404C350 446 450 446 480 404" stroke="#29326D" stroke-width="16" stroke-linecap="round"/>
+  <circle cx="266" cy="360" r="22" fill="#F4C3A6"/>
+  <circle cx="534" cy="360" r="22" fill="#F4C3A6"/>
+  <path d="M196 420C145 394 118 330 124 280" stroke="#F6EBD8" stroke-width="54" stroke-linecap="round"/>
+  <path d="M603 420C655 392 681 334 675 290" stroke="#F6EBD8" stroke-width="54" stroke-linecap="round"/>
+  <path d="M252 500H548L535 662C505 686 459 700 400 700C341 700 294 686 265 662L252 500Z" fill="#FFFFFF" stroke="#D9D9E8" stroke-width="4"/>
+  <path d="M286 550H516" stroke="#D9D9E8" stroke-width="6"/>
+  <path d="M350 462L400 420L450 462V548H350V462Z" fill="#29326D"/>
+  <path d="M318 478L400 404L482 478" stroke="#29326D" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <text x="400" y="595" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#29326D">LA CASA</text>
+  <text x="400" y="626" text-anchor="middle" font-family="Arial, sans-serif" font-size="26" font-weight="800" fill="#29326D">DEL PAÑAL</text>
+  <rect x="238" y="520" width="62" height="36" rx="10" fill="#8BB2FF" stroke="#29326D" stroke-width="4"/>
+  <rect x="500" y="520" width="62" height="36" rx="10" fill="#8BB2FF" stroke="#29326D" stroke-width="4"/>
+</svg>

@@ -1,0 +1,10 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#FFF2E6"/>
+  <rect x="78" y="36" width="344" height="288" rx="28" fill="#FFFFFF" stroke="#F1D8C4" stroke-width="4"/>
+  <rect x="78" y="36" width="344" height="76" rx="28" fill="#F28D35"/>
+  <text x="250" y="84" text-anchor="middle" font-family="Arial" font-size="30" font-weight="800" fill="#FFFFFF">Babysec Ultra</text>
+  <circle cx="250" cy="178" r="60" fill="#FFF7CC"/>
+  <text x="250" y="194" text-anchor="middle" font-family="Arial" font-size="52" font-weight="800" fill="#442E75">G</text>
+  <rect x="126" y="244" width="248" height="42" rx="16" fill="#FDF90F"/>
+  <text x="250" y="271" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">Jumbo 68</text>
+</svg>

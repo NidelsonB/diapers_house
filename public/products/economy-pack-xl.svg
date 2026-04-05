@@ -1,0 +1,9 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#FFFBE9"/>
+  <rect x="84" y="40" width="332" height="280" rx="28" fill="#FFFFFF" stroke="#EEE2A8" stroke-width="4"/>
+  <rect x="84" y="40" width="332" height="72" rx="28" fill="#2F7D5A"/>
+  <text x="250" y="84" text-anchor="middle" font-family="Arial" font-size="28" font-weight="800" fill="#FFFFFF">Canbebe Economy</text>
+  <rect x="132" y="136" width="236" height="96" rx="22" fill="#FDF4BE"/>
+  <text x="250" y="195" text-anchor="middle" font-family="Arial" font-size="50" font-weight="800" fill="#2F7D5A">XL</text>
+  <text x="250" y="272" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">54 unidades</text>
+</svg>

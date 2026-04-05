@@ -1,0 +1,12 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#FFF7CC"/>
+  <rect x="92" y="44" width="316" height="272" rx="26" fill="#FFFFFF" stroke="#DADAEA" stroke-width="4"/>
+  <rect x="92" y="44" width="316" height="68" rx="26" fill="#442E75"/>
+  <text x="250" y="86" text-anchor="middle" font-family="Arial" font-size="28" font-weight="800" fill="#FFF7E6">Pampers Premium</text>
+  <circle cx="250" cy="185" r="58" fill="#F4E7D4"/>
+  <circle cx="228" cy="176" r="7" fill="#29326D"/>
+  <circle cx="272" cy="176" r="7" fill="#29326D"/>
+  <path d="M228 208C242 220 258 220 272 208" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <rect x="132" y="238" width="236" height="42" rx="18" fill="#FDF90F"/>
+  <text x="250" y="266" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">RN · 36 unidades</text>
+</svg>

@@ -1,0 +1,9 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#EEF1FF"/>
+  <rect x="80" y="36" width="340" height="288" rx="28" fill="#FFFFFF" stroke="#D6DBF7" stroke-width="4"/>
+  <rect x="80" y="36" width="340" height="76" rx="28" fill="#1E2459"/>
+  <text x="250" y="84" text-anchor="middle" font-family="Arial" font-size="30" font-weight="800" fill="#FFFFFF">Huggies Nocturno</text>
+  <circle cx="250" cy="176" r="50" fill="#29326D"/>
+  <circle cx="272" cy="164" r="14" fill="#FDF90F"/>
+  <text x="250" y="266" text-anchor="middle" font-family="Arial" font-size="24" font-weight="800" fill="#29326D">XXG · 40 unidades</text>
+</svg>

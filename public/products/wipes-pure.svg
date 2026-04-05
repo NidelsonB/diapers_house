@@ -1,0 +1,10 @@
+<svg width="500" height="360" viewBox="0 0 500 360" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="500" height="360" rx="28" fill="#EFFFF8"/>
+  <rect x="88" y="78" width="324" height="198" rx="28" fill="#FFFFFF" stroke="#C8EAD9" stroke-width="4"/>
+  <rect x="130" y="48" width="240" height="72" rx="24" fill="#8ED8B7"/>
+  <text x="250" y="91" text-anchor="middle" font-family="Arial" font-size="28" font-weight="800" fill="#174B3B">Pure Care</text>
+  <circle cx="250" cy="176" r="44" fill="#F4E7D4"/>
+  <path d="M210 204C228 188 272 188 290 204" stroke="#174B3B" stroke-width="8" stroke-linecap="round"/>
+  <rect x="126" y="220" width="248" height="36" rx="16" fill="#FDF90F"/>
+  <text x="250" y="244" text-anchor="middle" font-family="Arial" font-size="22" font-weight="800" fill="#29326D">Toallitas x100</text>
+</svg>
