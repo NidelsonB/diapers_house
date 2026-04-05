@@ -6,7 +6,7 @@ import { ShoppingCart } from "lucide-react";
 
 import { useSiteStore } from "@/providers/site-store";
 import { Product } from "@/types/site";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, withBasePath } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useSiteStore();
@@ -17,7 +17,7 @@ export function ProductCard({ product }: { product: Product }) {
       <Link href={`/producto/${product.slug}`} className="block">
         <div className="relative flex h-52 items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#f8f5ff_0%,#fffde5_100%)] p-4">
           <Image
-            src={product.image}
+            src={withBasePath(product.image)}
             alt={product.name}
             width={240}
             height={180}

@@ -5,6 +5,7 @@ import Link from "next/link";
 import { BadgeDollarSign, ChevronRight, HeartHandshake, ShieldCheck, Truck } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
+import { withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 const benefitItems = [
@@ -98,7 +99,7 @@ export function HomePage() {
         <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#442e75_0%,#29326d_55%,#fdf90f_120%)] p-4 shadow-xl">
           <div className="rounded-[24px] bg-white/95 p-5">
             <Image
-              src="/brand/mascot-hero.svg"
+              src={withBasePath("/brand/mascot-hero.svg")}
               alt="Mascota de La Casa del Pañal"
               width={640}
               height={640}

@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 import { Globe2, MapPin, Menu, MessageCircle, Phone, Share2, ShoppingCart, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
-import { buildWhatsAppLink } from "@/lib/utils";
+import { buildWhatsAppLink, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 const navigation = [
@@ -35,7 +35,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 md:px-6">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src="/brand/logo-badge.svg"
+              src={withBasePath("/brand/logo-badge.svg")}
               alt="La Casa del Pañal"
               width={48}
               height={48}
@@ -113,7 +113,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.1fr_0.9fr_1fr] md:px-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Image src="/brand/logo-badge.svg" alt="Logo" width={42} height={42} />
+              <Image src={withBasePath("/brand/logo-badge.svg")} alt="Logo" width={42} height={42} />
               <div>
                 <h3 className="text-xl font-extrabold text-brand-secondary">{data.settings.businessName}</h3>
                 <p className="text-sm text-slate-600">Tienda online pensada para familias.</p>

@@ -21,6 +21,15 @@ export const buildWhatsAppLink = (phone: string, message: string) => {
   return `https://wa.me/503${normalizedPhone}?text=${encodeURIComponent(message)}`;
 };
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
+export const withBasePath = (path: string) => {
+  if (!path) return path;
+  if (/^(https?:)?\/\//.test(path)) return path;
+  const normalizedPath = path.startsWith("/") ? path : `/${path}`;
+  return `${basePath}${normalizedPath}`;
+};
+
 export const orderStatuses: OrderStatus[] = [
   "Nuevo",
   "Confirmado",

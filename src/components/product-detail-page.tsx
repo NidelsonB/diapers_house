@@ -5,7 +5,7 @@ import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
-import { formatCurrency } from "@/lib/utils";
+import { formatCurrency, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
@@ -39,7 +39,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-[32px] bg-white p-5 shadow-sm ring-1 ring-slate-200">
           <div className="flex h-[360px] items-center justify-center rounded-[24px] bg-[linear-gradient(135deg,#f8f5ff_0%,#fffde5_100%)] p-4">
-            <Image src={product.image} alt={product.name} width={420} height={320} className="h-full w-auto object-contain" />
+            <Image src={withBasePath(product.image)} alt={product.name} width={420} height={320} className="h-full w-auto object-contain" />
           </div>
         </div>
 
