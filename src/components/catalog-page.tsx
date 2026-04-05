@@ -1,18 +1,21 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { Search } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
 import { formatCurrency } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
-export function CatalogPage({ initialCategorySlug }: { initialCategorySlug?: string }) {
+function CatalogContent() {
   const { data } = useSiteStore();
+  const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
   const [sortBy, setSortBy] = useState("featured");
 
+  const initialCategorySlug = searchParams.get("categoria") ?? undefined;
   const resolvedCategory =
     selectedCategory ??
     data.categories.find((category) => category.slug === initialCategorySlug)?.id ??
@@ -138,5 +141,21 @@ export function CatalogPage({ initialCategorySlug }: { initialCategorySlug?: str
         </div>
       ) : null}
     </div>
+  );
+}
+
+export function CatalogPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
+          <div className="rounded-[32px] bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+            <p className="text-sm font-semibold text-slate-600">Cargando catálogo...</p>
+          </div>
+        </div>
+      }
+    >
+      <CatalogContent />
+    </Suspense>
   );
 }
