@@ -2,34 +2,11 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { BadgeDollarSign, ChevronRight, HeartHandshake, ShieldCheck, Truck } from "lucide-react";
+import { ChevronRight } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
 import { withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
-
-const benefitItems = [
-  {
-    title: "Entrega rápida",
-    description: "Preparamos pedidos con agilidad para que nunca te falte lo esencial.",
-    icon: Truck,
-  },
-  {
-    title: "Productos originales",
-    description: "Trabajamos con marcas reconocidas y calidad confiable para tu bebé.",
-    icon: ShieldCheck,
-  },
-  {
-    title: "Precios competitivos",
-    description: "Ofertas y presentaciones ideales para compras frecuentes.",
-    icon: BadgeDollarSign,
-  },
-  {
-    title: "Atención personalizada",
-    description: "Te orientamos según talla, etapa del bebé y presupuesto.",
-    icon: HeartHandshake,
-  },
-];
 
 const faqs = [
   {
@@ -107,23 +84,6 @@ export function HomePage() {
               priority
             />
           </div>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-7xl px-4 py-4 md:px-6">
-        <div className="grid gap-4 md:grid-cols-4">
-          {benefitItems.map((item) => {
-            const Icon = item.icon;
-            return (
-              <article key={item.title} className="rounded-[28px] border border-slate-200 bg-white p-5 shadow-sm">
-                <div className="mb-4 inline-flex rounded-2xl bg-brand-soft p-3 text-brand-primary">
-                  <Icon size={20} />
-                </div>
-                <h2 className="text-lg font-bold text-slate-900">{item.title}</h2>
-                <p className="mt-2 text-sm text-slate-600">{item.description}</p>
-              </article>
-            );
-          })}
         </div>
       </section>
 
