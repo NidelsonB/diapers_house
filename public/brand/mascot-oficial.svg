@@ -1,0 +1,42 @@
+<svg width="768" height="1365" viewBox="0 0 768 1365" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <ellipse cx="386" cy="1030" rx="160" ry="28" fill="#F6C51F" opacity="0.95"/>
+
+  <path d="M256 196C292 129 364 94 462 94H525C587 95 638 122 672 176L680 240H232L256 196Z" fill="#442E75"/>
+  <path d="M264 187C304 142 363 116 441 114H538C581 114 617 126 649 149L665 239H236L264 187Z" fill="#5C459A"/>
+  <path d="M232 240C262 247 310 250 365 250H553C603 250 643 246 680 237" stroke="#2C275F" stroke-width="5" stroke-linecap="round"/>
+  <path d="M251 231L171 261" stroke="#2C275F" stroke-width="20" stroke-linecap="round"/>
+  <text x="447" y="201" text-anchor="middle" font-family="Arial, sans-serif" font-size="48" font-weight="800" fill="#FFF4E3">PAÑALÍN</text>
+
+  <path d="M311 278C234 296 176 344 165 425C153 508 167 661 211 767C249 859 316 905 401 907C493 908 560 866 598 771C641 663 655 510 643 425C632 344 572 296 495 278C453 268 354 268 311 278Z" fill="#F8EAD8"/>
+  <path d="M300 350C314 333 336 323 359 323" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <path d="M492 323C515 323 537 333 551 350" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="332" cy="386" r="15" fill="#29326D"/>
+  <circle cx="487" cy="386" r="15" fill="#29326D"/>
+  <path d="M408 397C392 401 381 414 381 429C381 442 390 453 404 456" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <circle cx="265" cy="430" r="18" fill="#F6C4A5"/>
+  <circle cx="551" cy="430" r="18" fill="#F6C4A5"/>
+  <path d="M347 470C372 498 452 501 477 469" stroke="#29326D" stroke-width="16" stroke-linecap="round"/>
+  <path d="M381 492C397 507 430 509 449 492" stroke="#FF844B" stroke-width="16" stroke-linecap="round"/>
+
+  <path d="M186 489C126 460 93 392 101 332" stroke="#F8EAD8" stroke-width="54" stroke-linecap="round"/>
+  <path d="M103 335C88 319 87 291 103 275C119 259 144 260 160 276L184 300" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <path d="M123 288L148 350" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <path d="M154 280L179 343" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+
+  <path d="M607 510C664 481 693 421 689 370" stroke="#F8EAD8" stroke-width="54" stroke-linecap="round"/>
+  <path d="M625 636C648 615 649 580 629 560C607 538 571 540 550 566" stroke="#29326D" stroke-width="10" stroke-linecap="round"/>
+
+  <path d="M234 590H586L572 770C531 805 474 824 408 824C341 824 284 805 245 770L234 590Z" fill="#FBFBFD" stroke="#D7D9E7" stroke-width="4"/>
+  <path d="M252 594H568" stroke="#D7D9E7" stroke-width="5"/>
+  <rect x="215" y="618" width="66" height="38" rx="10" fill="#8DB5FF" stroke="#29326D" stroke-width="4"/>
+  <rect x="538" y="618" width="66" height="38" rx="10" fill="#8DB5FF" stroke="#29326D" stroke-width="4"/>
+
+  <path d="M351 499L409 450L468 499V596H351V499Z" fill="#29326D"/>
+  <path d="M315 515L409 430L503 515" stroke="#29326D" stroke-width="14" stroke-linecap="round" stroke-linejoin="round"/>
+  <rect x="388" y="526" width="44" height="70" fill="#FFFFFF" opacity="0.08"/>
+  <text x="409" y="675" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#29326D">LA CASA</text>
+  <text x="409" y="711" text-anchor="middle" font-family="Arial, sans-serif" font-size="28" font-weight="800" fill="#29326D">DEL PAÑAL</text>
+
+  <path d="M282 760C251 784 233 815 233 847C233 869 249 883 272 883C296 883 310 870 317 847" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+  <path d="M533 760C565 785 584 815 584 847C584 869 567 883 544 883C519 883 505 871 499 848" stroke="#29326D" stroke-width="8" stroke-linecap="round"/>
+</svg>
