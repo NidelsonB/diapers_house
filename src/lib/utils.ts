@@ -25,7 +25,7 @@ const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const withBasePath = (path: string) => {
   if (!path) return path;
-  if (/^(https?:)?\/\//.test(path)) return path;
+  if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(path)) return path;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${basePath}${normalizedPath}`;
 };

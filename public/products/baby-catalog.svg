@@ -1,0 +1,17 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="80" y1="60" x2="560" y2="580" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#F7F1FF"/>
+      <stop offset="1" stop-color="#FFF9C4"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" rx="36" fill="url(#bg)"/>
+  <rect x="78" y="78" width="484" height="484" rx="32" fill="white" stroke="#E6DDF7" stroke-width="8"/>
+  <rect x="148" y="150" width="344" height="220" rx="28" fill="#442E75" opacity="0.1"/>
+  <path d="M220 250C220 213.549 249.549 184 286 184H354C390.451 184 420 213.549 420 250V328H220V250Z" fill="#442E75"/>
+  <path d="M244 332H396V378C396 404.51 374.51 426 348 426H292C265.49 426 244 404.51 244 378V332Z" fill="#FDF90F"/>
+  <circle cx="270" cy="262" r="12" fill="white" opacity="0.9"/>
+  <circle cx="370" cy="262" r="12" fill="white" opacity="0.9"/>
+  <text x="320" y="470" text-anchor="middle" font-family="Arial, sans-serif" font-size="42" font-weight="700" fill="#29326D">Pañales Bebé</text>
+  <text x="320" y="512" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#5B5F76">Catálogo Pañalín Express</text>
+</svg>

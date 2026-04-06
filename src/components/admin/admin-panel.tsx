@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { useRouter } from "next/navigation";
 import {
   BarChart3,
@@ -15,7 +16,7 @@ import {
   Trash2,
 } from "lucide-react";
 
-import { formatCurrency, orderStatuses, slugify } from "@/lib/utils";
+import { formatCurrency, orderStatuses, slugify, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 const tabs = [
@@ -144,6 +145,38 @@ export function AdminPanel() {
 
     setProductForm({ ...emptyProductForm, categoryId: data.categories[0]?.id ?? "" });
     setNotice({ type: "success", text: "Producto guardado correctamente." });
+  };
+
+  const handleProductImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    event.target.value = "";
+
+    if (!file) {
+      return;
+    }
+
+    if (file.size > 2 * 1024 * 1024) {
+      setNotice({ type: "error", text: "La imagen supera 2 MB. Usa una más liviana para la demo." });
+      return;
+    }
+
+    const reader = new FileReader();
+
+    reader.onload = () => {
+      if (typeof reader.result !== "string") {
+        setNotice({ type: "error", text: "No se pudo procesar la imagen seleccionada." });
+        return;
+      }
+
+      setProductForm((current) => ({ ...current, image: reader.result as string }));
+      setNotice({ type: "success", text: `Imagen cargada: ${file.name}` });
+    };
+
+    reader.onerror = () => {
+      setNotice({ type: "error", text: "Ocurrió un error al leer el archivo." });
+    };
+
+    reader.readAsDataURL(file);
   };
 
   const handleCategorySubmit = (event: React.FormEvent<HTMLFormElement>) => {
@@ -336,7 +369,27 @@ export function AdminPanel() {
                   <option key={category.id} value={category.id}>{category.name}</option>
                 ))}
               </select>
-              <input value={productForm.image} onChange={(event) => setProductForm((current) => ({ ...current, image: event.target.value }))} placeholder="Ruta de imagen /products/...svg" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
+              <div className="space-y-3 rounded-[24px] border border-dashed border-slate-300 bg-slate-50 p-4">
+                <div className="space-y-2">
+                  <p className="text-sm font-bold text-slate-900">Imagen del producto</p>
+                  <p className="text-xs text-slate-500">Puedes pegar una ruta/URL o subir la imagen directamente desde tu computadora.</p>
+                </div>
+                <input value={productForm.image} onChange={(event) => setProductForm((current) => ({ ...current, image: event.target.value }))} placeholder="Ruta o URL de imagen" className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-primary" />
+                <input type="file" accept="image/png,image/jpeg,image/webp,image/svg+xml" onChange={handleProductImageUpload} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-brand-primary file:px-3 file:py-2 file:font-bold file:text-white" />
+                {productForm.image ? (
+                  <div className="rounded-2xl border border-slate-200 bg-white p-3">
+                    <p className="mb-2 text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">Vista previa</p>
+                    <Image
+                      src={withBasePath(productForm.image)}
+                      alt={productForm.name || "Vista previa del producto"}
+                      width={320}
+                      height={160}
+                      unoptimized
+                      className="h-32 w-full rounded-2xl object-contain"
+                    />
+                  </div>
+                ) : null}
+              </div>
               <div className="grid grid-cols-3 gap-2 text-sm">
                 <label className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2"><input type="checkbox" checked={productForm.featured} onChange={(event) => setProductForm((current) => ({ ...current, featured: event.target.checked }))} /> Destacado</label>
                 <label className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2"><input type="checkbox" checked={productForm.isNew} onChange={(event) => setProductForm((current) => ({ ...current, isNew: event.target.checked }))} /> Nuevo</label>
@@ -355,10 +408,20 @@ export function AdminPanel() {
               {data.products.map((product) => (
                 <div key={product.id} className="rounded-2xl bg-slate-50 p-4">
                   <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                    <div>
-                      <p className="font-bold text-slate-900">{product.name}</p>
-                      <p className="text-sm text-slate-600">{product.brand} · {product.pack} · Stock {product.stock}</p>
-                      <p className="text-sm font-semibold text-brand-secondary">{formatCurrency(product.price)}</p>
+                    <div className="flex items-start gap-3">
+                      <Image
+                        src={withBasePath(product.image)}
+                        alt={product.name}
+                        width={64}
+                        height={64}
+                        unoptimized
+                        className="h-16 w-16 rounded-2xl border border-slate-200 bg-white object-contain p-1"
+                      />
+                      <div>
+                        <p className="font-bold text-slate-900">{product.name}</p>
+                        <p className="text-sm text-slate-600">{product.brand} · {product.pack} · Stock {product.stock}</p>
+                        <p className="text-sm font-semibold text-brand-secondary">{formatCurrency(product.price)}</p>
+                      </div>
                     </div>
                     <div className="flex gap-2">
                       <button

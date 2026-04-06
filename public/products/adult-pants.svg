@@ -1,0 +1,16 @@
+<svg width="640" height="640" viewBox="0 0 640 640" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="90" y1="70" x2="560" y2="570" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#EEF2FF"/>
+      <stop offset="1" stop-color="#FFEFCF"/>
+    </linearGradient>
+  </defs>
+  <rect width="640" height="640" rx="36" fill="url(#bg)"/>
+  <rect x="84" y="84" width="472" height="472" rx="32" fill="white" stroke="#E4E7F8" stroke-width="8"/>
+  <path d="M212 172H428L394 418C390.53 443.1 369.07 462 343.73 462H296.27C270.93 462 249.47 443.1 246 418L212 172Z" fill="#442E75"/>
+  <path d="M254 172H386V260C386 286.51 364.51 308 338 308H302C275.49 308 254 286.51 254 260V172Z" fill="#FDF90F"/>
+  <rect x="210" y="210" width="42" height="120" rx="18" fill="#8EC5FF"/>
+  <rect x="388" y="210" width="42" height="120" rx="18" fill="#8EC5FF"/>
+  <text x="320" y="512" text-anchor="middle" font-family="Arial, sans-serif" font-size="40" font-weight="700" fill="#442E75">Tipo calzón</text>
+  <text x="320" y="552" text-anchor="middle" font-family="Arial, sans-serif" font-size="24" fill="#5B5F76">Adulto activo</text>
+</svg>

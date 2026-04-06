@@ -97,13 +97,13 @@ export function HomePage() {
         </div>
 
         <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#442e75_0%,#29326d_55%,#fdf90f_120%)] p-4 shadow-xl">
-          <div className="rounded-[24px] bg-white/95 p-5">
+          <div className="rounded-[24px] bg-[radial-gradient(circle_at_top,#ffffff_0%,rgba(255,255,255,0.82)_38%,rgba(253,249,15,0.18)_100%)] p-5">
             <Image
-              src={withBasePath("/brand/panalin.jpeg")}
+              src={withBasePath("/brand/panalin-transparent.png")}
               alt="Mascota oficial Pañalín de La Casa del Pañal"
-              width={768}
-              height={1365}
-              className="mx-auto h-auto w-full max-w-sm"
+              width={779}
+              height={960}
+              className="mx-auto h-auto w-full max-w-sm drop-shadow-[0_24px_40px_rgba(41,50,109,0.22)]"
               priority
             />
           </div>
