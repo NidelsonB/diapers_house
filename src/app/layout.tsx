@@ -22,6 +22,11 @@ export const metadata: Metadata = {
     "El Salvador",
     "La Casa del Pañal",
   ],
+  icons: {
+    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
+    shortcut: ["/icon.svg"],
+    apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }],
+  },
 };
 
 export default function RootLayout({
