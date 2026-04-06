@@ -33,19 +33,19 @@ export function CartPage() {
         </div>
 
         {cartItemsDetailed.map((item) => (
-          <article key={item.product.id} className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200">
+          <article key={item.cartKey} className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200">
             <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
               <div>
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">{item.product.brand}</p>
                 <h2 className="text-xl font-bold text-slate-900">{item.product.name}</h2>
-                <p className="text-sm text-slate-600">{item.product.pack} · Talla {item.product.size}</p>
+                <p className="text-sm text-slate-600">{item.product.pack} · Talla {item.selectedSize}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
                 <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
                   <button
                     type="button"
-                    onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
+                    onClick={() => updateCartQuantity(item.product.id, item.quantity - 1, item.selectedSize)}
                     className="rounded-full p-1 text-slate-700"
                     aria-label="Disminuir cantidad"
                   >
@@ -54,7 +54,7 @@ export function CartPage() {
                   <span className="min-w-8 text-center text-sm font-bold">{item.quantity}</span>
                   <button
                     type="button"
-                    onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
+                    onClick={() => updateCartQuantity(item.product.id, item.quantity + 1, item.selectedSize)}
                     className="rounded-full p-1 text-slate-700"
                     aria-label="Aumentar cantidad"
                   >
@@ -68,7 +68,7 @@ export function CartPage() {
 
                 <button
                   type="button"
-                  onClick={() => removeFromCart(item.product.id)}
+                  onClick={() => removeFromCart(item.product.id, item.selectedSize)}
                   className="rounded-full border border-slate-200 p-2 text-slate-600 transition hover:border-red-300 hover:text-red-600"
                   aria-label="Eliminar producto"
                 >

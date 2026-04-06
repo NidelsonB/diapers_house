@@ -49,11 +49,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-101",
     slug: "brazil-babycare-m-x40",
-    name: "Brazil Babycare M x40",
+    name: "Brazil Babycare x40",
     description:
       "Pañal para bebé del catálogo Pañalín Express con buena absorción y tallas disponibles de M a XXL.",
     price: 7.5,
     size: "M",
+    sizeOptions: ["M", "L", "XL", "XXL"],
     brand: "Brazil Babycare",
     pack: "40 unidades",
     stock: 28,
@@ -65,11 +66,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-102",
     slug: "pompom-tipo-calzon-m-x50",
-    name: "PomPom Tipo Calzón M x50",
+    name: "PomPom Tipo Calzón x50",
     description:
       "Versión tipo calzón para bebé, cómoda para el movimiento diario y con varias tallas disponibles.",
     price: 9,
     size: "M",
+    sizeOptions: ["M", "L", "XL", "XXL"],
     brand: "PomPom",
     pack: "50 unidades",
     stock: 24,
@@ -81,11 +83,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-103",
     slug: "baby-genius-l-x25",
-    name: "Baby Genius L x25",
+    name: "Baby Genius x25",
     description:
       "Presentación práctica del catálogo, ideal para compras rápidas con tallas L, XL y XXL.",
     price: 8.5,
     size: "L",
+    sizeOptions: ["L", "XL", "XXL"],
     brand: "Baby Genius",
     pack: "25 unidades",
     stock: 18,
@@ -96,11 +99,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-104",
     slug: "softcare-rn-x60",
-    name: "Softcare RN x60",
+    name: "Softcare x60",
     description:
       "Opción para recién nacidos del PDF, suave al contacto y con indicador de humedad.",
     price: 8,
     size: "RN",
+    sizeOptions: ["RN", "S", "M", "L", "XL", "XXL", "XXXL"],
     brand: "Softcare",
     pack: "60 unidades",
     stock: 20,
@@ -112,11 +116,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-105",
     slug: "jueguitos-s-x56",
-    name: "Jueguitos S x56",
+    name: "Jueguitos x56",
     description:
       "Pañal de uso diario para bebé según el catálogo compartido, con tallas de S a XL.",
     price: 9,
     size: "S",
+    sizeOptions: ["S", "M", "L", "XL"],
     brand: "Jueguitos",
     pack: "56 unidades",
     stock: 22,
@@ -142,11 +147,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-107",
     slug: "tatadoo-m-x10",
-    name: "Tatadoo M x10",
+    name: "Tatadoo x10",
     description:
       "Modelo para adulto del catálogo con tallas M, L y XL en formato práctico de 10 unidades.",
     price: 7,
     size: "M",
+    sizeOptions: ["M", "L", "XL"],
     brand: "Tatadoo",
     pack: "10 unidades",
     stock: 26,
@@ -157,12 +163,13 @@ export const seedProducts: Product[] = [
   {
     id: "prod-108",
     slug: "cotidian-m-x20",
-    name: "Cotidian M x20",
+    name: "Cotidian x20",
     description:
       "Pañal para adulto con mayor cobertura y comodidad para uso continuo en casa o cuidado asistido.",
     price: 15.5,
     originalPrice: 16.5,
     size: "M",
+    sizeOptions: ["M", "L"],
     brand: "Cotidian",
     pack: "20 unidades",
     stock: 16,
@@ -174,11 +181,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-109",
     slug: "medicare-m-x10",
-    name: "Medicare M x10",
+    name: "Medicare x10",
     description:
       "Alternativa de adulto del PDF con tallas M, L y XL para uso diario.",
     price: 7,
     size: "M",
+    sizeOptions: ["M", "L", "XL"],
     brand: "Medicare",
     pack: "10 unidades",
     stock: 19,
@@ -189,11 +197,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-110",
     slug: "americano-l-x24",
-    name: "Americano L x24",
+    name: "Americano x24",
     description:
       "Pañal de adulto con presentación más amplia, ideal para mantener stock con buen rendimiento.",
     price: 15,
     size: "L",
+    sizeOptions: ["L", "XL"],
     brand: "Americano",
     pack: "24 unidades",
     stock: 14,
@@ -204,11 +213,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-111",
     slug: "affective-m-x20",
-    name: "Affective M x20",
+    name: "Affective x20",
     description:
       "Línea para adulto de alta absorción incluida en el PDF, con tallas M y L.",
     price: 15.5,
     size: "M",
+    sizeOptions: ["M", "L"],
     brand: "Affective",
     pack: "20 unidades",
     stock: 13,
@@ -219,11 +229,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-112",
     slug: "silver-xxl-x16",
-    name: "Silver XXL x16",
+    name: "Silver x16",
     description:
       "Opción para adulto con tallas grandes según el catálogo, pensada para comodidad y soporte.",
     price: 7,
     size: "XXL",
+    sizeOptions: ["XXL", "XXXL"],
     brand: "Silver",
     pack: "16 unidades",
     stock: 15,
@@ -234,12 +245,13 @@ export const seedProducts: Product[] = [
   {
     id: "prod-113",
     slug: "tena-m-x20",
-    name: "Tena M x20",
+    name: "Tena x20",
     description:
       "Modelo reconocido para adulto con buena protección y tallas M y L disponibles en el catálogo.",
     price: 18,
     originalPrice: 19.5,
     size: "M",
+    sizeOptions: ["M", "L"],
     brand: "Tena",
     pack: "20 unidades",
     stock: 12,
@@ -252,11 +264,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-114",
     slug: "cotidian-calzon-m-x10",
-    name: "Cotidian Calzón M x10",
+    name: "Cotidian Calzón x10",
     description:
       "Versión tipo calzón para adulto, fácil de poner y retirar durante la rutina diaria.",
     price: 9,
     size: "M",
+    sizeOptions: ["M", "L", "XL"],
     brand: "Cotidian",
     pack: "10 unidades",
     stock: 17,
@@ -267,11 +280,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-115",
     slug: "tatadoo-calzon-l-x10",
-    name: "Tatadoo Calzón L x10",
+    name: "Tatadoo Calzón x10",
     description:
       "Alternativa tipo pants para adulto con tallas M, L y XL de acuerdo con el PDF.",
     price: 9,
     size: "L",
+    sizeOptions: ["M", "L", "XL"],
     brand: "Tatadoo",
     pack: "10 unidades",
     stock: 18,
@@ -282,11 +296,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-116",
     slug: "fitright-calzon-l-x18",
-    name: "Fitright Calzón L x18",
+    name: "Fitright Calzón x18",
     description:
       "Pañal tipo calzón para adulto con excelente cobertura y ajuste, ideal para uso prolongado.",
     price: 15,
     size: "L",
+    sizeOptions: ["L", "XL"],
     brand: "Fitright",
     pack: "18 unidades",
     stock: 11,
@@ -313,11 +328,12 @@ export const seedProducts: Product[] = [
   {
     id: "prod-118",
     slug: "tena-pants-m-x13",
-    name: "Tena Pants M x13",
+    name: "Tena Pants x13",
     description:
       "Opción tipo pants para adulto con absorción confiable y ajuste cómodo para movilidad diaria.",
     price: 12,
     size: "M",
+    sizeOptions: ["M", "L"],
     brand: "Tena",
     pack: "13 unidades",
     stock: 13,
@@ -651,9 +667,10 @@ export const seedOrders: Order[] = [
     items: [
       {
         productId: "prod-101",
-        name: "Brazil Babycare M x40",
+        name: "Brazil Babycare x40",
         quantity: 1,
         price: 7.5,
+        selectedSize: "M",
       },
       {
         productId: "prod-126",
@@ -682,9 +699,10 @@ export const seedOrders: Order[] = [
     items: [
       {
         productId: "prod-116",
-        name: "Fitright Calzón L x18",
+        name: "Fitright Calzón x18",
         quantity: 1,
         price: 15,
+        selectedSize: "L",
       },
       {
         productId: "prod-121",
@@ -707,9 +725,10 @@ export const seedOrders: Order[] = [
     items: [
       {
         productId: "prod-113",
-        name: "Tena M x20",
+        name: "Tena x20",
         quantity: 1,
         price: 18,
+        selectedSize: "M", 
       },
       {
         productId: "prod-131",

@@ -163,8 +163,8 @@ export function CheckoutPage() {
         <h2 className="text-xl font-black text-slate-900">Resumen de compra</h2>
         <div className="mt-4 space-y-3 text-sm text-slate-600">
           {cartItemsDetailed.map((item) => (
-            <div key={item.product.id} className="flex justify-between gap-3">
-              <span>{item.quantity} × {item.product.name}</span>
+            <div key={item.cartKey} className="flex justify-between gap-3">
+              <span>{item.quantity} × {item.product.name} · Talla {item.selectedSize}</span>
               <span>{formatCurrency(item.subtotal)}</span>
             </div>
           ))}

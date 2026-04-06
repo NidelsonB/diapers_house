@@ -1,4 +1,4 @@
-import { OrderStatus } from "@/types/site";
+import { OrderStatus, Product } from "@/types/site";
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-SV", {
@@ -28,6 +28,18 @@ export const withBasePath = (path: string) => {
   if (/^(?:[a-z][a-z\d+.-]*:|\/\/)/i.test(path)) return path;
   const normalizedPath = path.startsWith("/") ? path : `/${path}`;
   return `${basePath}${normalizedPath}`;
+};
+
+export const getProductSizeOptions = (product: Product) => {
+  const options = (product.sizeOptions ?? [])
+    .map((option) => option.trim())
+    .filter(Boolean);
+
+  if (options.length > 0) {
+    return Array.from(new Set(options));
+  }
+
+  return product.size ? [product.size] : [];
 };
 
 export const orderStatuses: OrderStatus[] = [

@@ -1,16 +1,23 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 import { useSiteStore } from "@/providers/site-store";
 import { Product } from "@/types/site";
-import { formatCurrency, withBasePath } from "@/lib/utils";
+import { formatCurrency, getProductSizeOptions, withBasePath } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useSiteStore();
   const availabilityLabel = product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
+  const sizeOptions = getProductSizeOptions(product);
+  const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product.size);
+
+  useEffect(() => {
+    setSelectedSize(sizeOptions[0] ?? product.size);
+  }, [product.id, product.size, product.sizeOptions?.join("|")]);
 
   return (
     <article className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
@@ -49,12 +56,31 @@ export function ProductCard({ product }: { product: Product }) {
         </div>
 
         <div className="flex flex-wrap gap-2 text-xs text-slate-600">
-          <span className="rounded-full bg-slate-100 px-2.5 py-1">Talla {product.size}</span>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1">
+            {sizeOptions.length > 1 ? `Tallas ${sizeOptions.join(" · ")}` : `Talla ${selectedSize}`}
+          </span>
           <span className="rounded-full bg-slate-100 px-2.5 py-1">{product.pack}</span>
           <span className={`rounded-full px-2.5 py-1 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
             {availabilityLabel}
           </span>
         </div>
+
+        {sizeOptions.length > 1 ? (
+          <label className="block text-sm font-semibold text-slate-700">
+            Selecciona talla
+            <select
+              value={selectedSize}
+              onChange={(event) => setSelectedSize(event.target.value)}
+              className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-3 py-2.5 text-sm outline-none focus:border-brand-primary"
+            >
+              {sizeOptions.map((size) => (
+                <option key={size} value={size}>
+                  {size}
+                </option>
+              ))}
+            </select>
+          </label>
+        ) : null}
 
         <div className="flex items-center justify-between gap-4">
           <div>
@@ -66,8 +92,9 @@ export function ProductCard({ product }: { product: Product }) {
 
           <button
             type="button"
-            onClick={() => addToCart(product.id)}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-4 py-2.5 text-sm font-bold text-brand-secondary transition hover:brightness-95"
+            onClick={() => addToCart(product.id, selectedSize)}
+            disabled={product.stock <= 0}
+            className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-4 py-2.5 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ShoppingCart size={16} />
             Agregar

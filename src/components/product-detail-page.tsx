@@ -1,17 +1,26 @@
 "use client";
 
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
-import { formatCurrency, withBasePath } from "@/lib/utils";
+import { formatCurrency, getProductSizeOptions, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
   const { addToCart, data } = useSiteStore();
   const product = data.products.find((item) => item.slug === slug);
   const availabilityLabel = !product ? "" : product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
+  const sizeOptions = product ? getProductSizeOptions(product) : [];
+  const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product?.size ?? "");
+
+  useEffect(() => {
+    if (product) {
+      setSelectedSize(sizeOptions[0] ?? product.size);
+    }
+  }, [product?.id, product?.size, product?.sizeOptions?.join("|")]);
 
   if (!product) {
     return (
@@ -51,12 +60,31 @@ export function ProductDetailPage({ slug }: { slug: string }) {
           </div>
 
           <div className="flex flex-wrap gap-2 text-sm">
-            <span className="rounded-full bg-slate-100 px-3 py-1.5">Talla {product.size}</span>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5">
+              {sizeOptions.length > 1 ? `Talla seleccionada ${selectedSize}` : `Talla ${product.size}`}
+            </span>
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{product.pack}</span>
             <span className={`rounded-full px-3 py-1.5 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
               {availabilityLabel}
             </span>
           </div>
+
+          {sizeOptions.length > 1 ? (
+            <label className="block text-sm font-semibold text-slate-700">
+              Elige la talla de diaper
+              <select
+                value={selectedSize}
+                onChange={(event) => setSelectedSize(event.target.value)}
+                className="mt-2 w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-primary"
+              >
+                {sizeOptions.map((size) => (
+                  <option key={size} value={size}>
+                    {size}
+                  </option>
+                ))}
+              </select>
+            </label>
+          ) : null}
 
           <div>
             <p className="text-4xl font-black text-brand-secondary">{formatCurrency(product.price)}</p>
@@ -68,7 +96,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
           <div className="rounded-[24px] bg-brand-soft p-4 text-sm text-slate-700">
             <p className="font-bold text-brand-secondary">Lo que encontrarás en esta ficha:</p>
             <ul className="mt-2 space-y-1">
-              <li>• Nombre, marca y talla claramente visibles.</li>
+              <li>• Selección de talla antes de agregar al carrito.</li>
               <li>• Presentación y disponibilidad actualizada.</li>
               <li>• Compra directa o agregado al carrito con un clic.</li>
             </ul>
@@ -76,8 +104,9 @@ export function ProductDetailPage({ slug }: { slug: string }) {
 
           <button
             type="button"
-            onClick={() => addToCart(product.id)}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary transition hover:brightness-95"
+            onClick={() => addToCart(product.id, selectedSize)}
+            disabled={product.stock <= 0}
+            className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ShoppingCart size={16} />
             Agregar al carrito

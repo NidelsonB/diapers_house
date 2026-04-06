@@ -14,6 +14,7 @@ export interface Product {
   price: number;
   originalPrice?: number;
   size: string;
+  sizeOptions?: string[];
   brand: string;
   pack: string;
   stock: number;
@@ -30,6 +31,7 @@ export interface OrderItem {
   name: string;
   price: number;
   quantity: number;
+  selectedSize?: string;
 }
 
 export type OrderStatus =
@@ -92,4 +94,5 @@ export interface SiteData {
 export interface CartItem {
   productId: string;
   quantity: number;
+  selectedSize: string;
 }

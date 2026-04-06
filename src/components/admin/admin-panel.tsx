@@ -35,6 +35,7 @@ const emptyProductForm = {
   price: "",
   originalPrice: "",
   size: "",
+  sizeOptions: "",
   brand: "",
   pack: "",
   stock: "",
@@ -124,6 +125,12 @@ export function AdminPanel() {
       return;
     }
 
+    const normalizedSizeOptions = productForm.sizeOptions
+      .split(",")
+      .map((size) => size.trim())
+      .filter(Boolean);
+    const defaultSize = productForm.size || normalizedSizeOptions[0] || "Única";
+
     upsertProduct({
       id: productForm.id,
       slug: productForm.slug || slugify(productForm.name),
@@ -131,7 +138,8 @@ export function AdminPanel() {
       description: productForm.description,
       price: Number(productForm.price),
       originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
-      size: productForm.size,
+      size: defaultSize,
+      sizeOptions: normalizedSizeOptions.length > 0 ? normalizedSizeOptions : [defaultSize],
       brand: productForm.brand,
       pack: productForm.pack,
       stock: Number(productForm.stock),
@@ -140,7 +148,7 @@ export function AdminPanel() {
       featured: productForm.featured,
       isNew: productForm.isNew,
       onSale: productForm.onSale,
-      tags: [productForm.brand, productForm.size, productForm.pack].filter(Boolean),
+      tags: [productForm.brand, defaultSize, ...normalizedSizeOptions, productForm.pack].filter(Boolean),
     });
 
     setProductForm({ ...emptyProductForm, categoryId: data.categories[0]?.id ?? "" });
@@ -354,8 +362,9 @@ export function AdminPanel() {
               <textarea value={productForm.description} onChange={(event) => setProductForm((current) => ({ ...current, description: event.target.value }))} rows={3} placeholder="Descripción" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               <div className="grid grid-cols-2 gap-3">
                 <input value={productForm.brand} onChange={(event) => setProductForm((current) => ({ ...current, brand: event.target.value }))} placeholder="Marca" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
-                <input value={productForm.size} onChange={(event) => setProductForm((current) => ({ ...current, size: event.target.value }))} placeholder="Talla" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
+                <input value={productForm.size} onChange={(event) => setProductForm((current) => ({ ...current, size: event.target.value }))} placeholder="Talla predeterminada" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               </div>
+              <input value={productForm.sizeOptions} onChange={(event) => setProductForm((current) => ({ ...current, sizeOptions: event.target.value }))} placeholder="Tallas disponibles separadas por coma: RN, S, M, L" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               <div className="grid grid-cols-2 gap-3">
                 <input type="number" step="0.01" value={productForm.price} onChange={(event) => setProductForm((current) => ({ ...current, price: event.target.value }))} placeholder="Precio" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
                 <input type="number" value={productForm.stock} onChange={(event) => setProductForm((current) => ({ ...current, stock: event.target.value }))} placeholder="Stock" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
@@ -419,7 +428,7 @@ export function AdminPanel() {
                       />
                       <div>
                         <p className="font-bold text-slate-900">{product.name}</p>
-                        <p className="text-sm text-slate-600">{product.brand} · {product.pack} · Stock {product.stock}</p>
+                        <p className="text-sm text-slate-600">{product.brand} · Tallas {(product.sizeOptions?.length ? product.sizeOptions.join(", ") : product.size)} · {product.pack} · Stock {product.stock}</p>
                         <p className="text-sm font-semibold text-brand-secondary">{formatCurrency(product.price)}</p>
                       </div>
                     </div>
@@ -436,6 +445,7 @@ export function AdminPanel() {
                             price: String(product.price),
                             originalPrice: product.originalPrice ? String(product.originalPrice) : "",
                             size: product.size,
+                            sizeOptions: product.sizeOptions?.join(", ") || product.size,
                             brand: product.brand,
                             pack: product.pack,
                             stock: String(product.stock),
@@ -521,7 +531,7 @@ export function AdminPanel() {
                   <div>
                     <p className="font-bold text-slate-900">{order.id} · {order.customerName}</p>
                     <p className="text-sm text-slate-600">{order.phone} · {order.branch}</p>
-                    <p className="mt-2 text-sm text-slate-600">{order.items.map((item) => `${item.quantity}x ${item.name}`).join(", ")}</p>
+                    <p className="mt-2 text-sm text-slate-600">{order.items.map((item) => `${item.quantity}x ${item.name}${item.selectedSize ? ` · Talla ${item.selectedSize}` : ""}`).join(", ")}</p>
                     <p className="mt-2 text-sm font-semibold text-brand-secondary">Total: {formatCurrency(order.total)}</p>
                   </div>
                   <div className="min-w-52 space-y-2">
