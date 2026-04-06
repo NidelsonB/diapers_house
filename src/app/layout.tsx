@@ -11,6 +11,8 @@ const nunito = Nunito_Sans({
   subsets: ["latin"],
 });
 
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+
 export const metadata: Metadata = {
   title: "La Casa del Pañal | Tienda online para tu bebé",
   description:
@@ -23,9 +25,9 @@ export const metadata: Metadata = {
     "La Casa del Pañal",
   ],
   icons: {
-    icon: [{ url: "/icon.svg", type: "image/svg+xml" }],
-    shortcut: ["/icon.svg"],
-    apple: [{ url: "/apple-icon.svg", type: "image/svg+xml" }],
+    icon: [{ url: `${basePath}/icon.svg`, type: "image/svg+xml" }],
+    shortcut: [`${basePath}/icon.svg`],
+    apple: [{ url: `${basePath}/apple-icon.svg`, type: "image/svg+xml" }],
   },
 };
 
