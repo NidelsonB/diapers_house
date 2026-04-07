@@ -13,7 +13,7 @@ function CatalogContent() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState("featured");
+  const [sortBy, setSortBy] = useState("catalog-order");
 
   const initialCategorySlug = searchParams.get("categoria") ?? undefined;
   const resolvedCategory =
@@ -28,7 +28,7 @@ function CatalogContent() {
       const term = search.toLowerCase().trim();
       const matchesSearch =
         term.length === 0 ||
-        [product.name, product.brand, product.description, product.size, product.pack]
+        [product.name, product.brand, product.description, product.size, product.sizeOptions?.join(" ") ?? "", product.pack]
           .join(" ")
           .toLowerCase()
           .includes(term);
@@ -38,13 +38,15 @@ function CatalogContent() {
 
     switch (sortBy) {
       case "price-asc":
-        return [...base].sort((a, b) => a.price - b.price);
+        return [...base].sort((a, b) => a.price - b.price || (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
       case "price-desc":
-        return [...base].sort((a, b) => b.price - a.price);
+        return [...base].sort((a, b) => b.price - a.price || (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
       case "offers":
-        return [...base].sort((a, b) => Number(b.onSale) - Number(a.onSale));
+        return [...base].sort((a, b) => Number(b.onSale) - Number(a.onSale) || (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+      case "featured":
+        return [...base].sort((a, b) => Number(b.featured) - Number(a.featured) || (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
       default:
-        return [...base].sort((a, b) => Number(b.featured) - Number(a.featured));
+        return [...base].sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
     }
   }, [data.products, resolvedCategory, search, sortBy]);
 
@@ -86,6 +88,7 @@ function CatalogContent() {
             onChange={(event) => setSortBy(event.target.value)}
             className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary"
           >
+            <option value="catalog-order">Ordenar: catálogo</option>
             <option value="featured">Ordenar: destacados</option>
             <option value="price-asc">Precio: menor a mayor</option>
             <option value="price-desc">Precio: mayor a menor</option>

@@ -130,6 +130,7 @@ export function AdminPanel() {
       .map((size) => size.trim())
       .filter(Boolean);
     const defaultSize = productForm.size || normalizedSizeOptions[0] || "Única";
+    const currentSortOrder = data.products.find((item) => item.id === productForm.id)?.sortOrder ?? data.products.length + 1;
 
     upsertProduct({
       id: productForm.id,
@@ -140,6 +141,7 @@ export function AdminPanel() {
       originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
       size: defaultSize,
       sizeOptions: normalizedSizeOptions.length > 0 ? normalizedSizeOptions : [defaultSize],
+      sortOrder: currentSortOrder,
       brand: productForm.brand,
       pack: productForm.pack,
       stock: Number(productForm.stock),

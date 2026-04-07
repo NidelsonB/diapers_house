@@ -36,6 +36,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
 
   const relatedProducts = data.products
     .filter((item) => item.categoryId === product.categoryId && item.id !== product.id)
+    .sort((a, b) => (a.sortOrder ?? 999) - (b.sortOrder ?? 999))
     .slice(0, 3);
 
   return (

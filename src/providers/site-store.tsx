@@ -22,8 +22,8 @@ import {
   SiteData,
 } from "@/types/site";
 
-const DATA_KEY = "lcdp-site-data-v3-size-options";
-const CART_KEY = "lcdp-cart-v3-size-options";
+const DATA_KEY = "lcdp-site-data-v4-catalog-order";
+const CART_KEY = "lcdp-cart-v4-catalog-order";
 const AUTH_KEY = "lcdp-admin-auth";
 
 interface CheckoutPayload {

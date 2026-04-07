@@ -15,6 +15,7 @@ export interface Product {
   originalPrice?: number;
   size: string;
   sizeOptions?: string[];
+  sortOrder?: number;
   brand: string;
   pack: string;
   stock: number;
