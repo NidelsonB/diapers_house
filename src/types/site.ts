@@ -6,9 +6,9 @@ export interface Category {
   icon: string;
 }
 
-export interface SizeInventoryItem {
+export interface SizePackageInfo {
   size: string;
-  stock: number;
+  units: number;
 }
 
 export interface Product {
@@ -20,7 +20,8 @@ export interface Product {
   originalPrice?: number;
   size: string;
   sizeOptions?: string[];
-  sizeInventory?: SizeInventoryItem[];
+  sizePackageInfo?: SizePackageInfo[];
+  sizeInventory?: Array<{ size: string; stock: number }>;
   sortOrder?: number;
   brand: string;
   pack: string;

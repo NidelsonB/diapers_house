@@ -7,14 +7,14 @@ import { ShoppingCart } from "lucide-react";
 
 import { useSiteStore } from "@/providers/site-store";
 import { Product } from "@/types/site";
-import { formatCurrency, getProductSizeOptions, getProductSizeStock, withBasePath } from "@/lib/utils";
+import { formatCurrency, formatProductPackLabel, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useSiteStore();
   const sizeOptions = getProductSizeOptions(product);
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product.size);
-  const selectedSizeStock = getProductSizeStock(product, selectedSize);
-  const availabilityLabel = selectedSizeStock > 8 ? "Disponible" : selectedSizeStock > 0 ? "Últimas unidades" : "Agotado";
+  const selectedPackUnits = getProductSizeUnits(product, selectedSize);
+  const availabilityLabel = product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
 
   useEffect(() => {
     setSelectedSize(sizeOptions[0] ?? product.size);
@@ -60,12 +60,9 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="rounded-full bg-slate-100 px-2.5 py-1">
             {sizeOptions.length > 1 ? `Tallas ${sizeOptions.join(" · ")}` : `Talla ${selectedSize}`}
           </span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1">{product.pack}</span>
-          <span className={`rounded-full px-2.5 py-1 ${selectedSizeStock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+          <span className="rounded-full bg-slate-100 px-2.5 py-1">{formatProductPackLabel(product, selectedSize)}</span>
+          <span className={`rounded-full px-2.5 py-1 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
             {availabilityLabel}
-          </span>
-          <span className="rounded-full bg-brand-soft px-2.5 py-1 text-brand-secondary">
-            {selectedSizeStock} en talla {selectedSize}
           </span>
         </div>
 
@@ -79,10 +76,13 @@ export function ProductCard({ product }: { product: Product }) {
             >
               {sizeOptions.map((size) => (
                 <option key={size} value={size}>
-                  {size} · {getProductSizeStock(product, size)} disponibles
+                  {size} · paquete de {getProductSizeUnits(product, size)} unidades
                 </option>
               ))}
             </select>
+            <span className="mt-2 block text-xs font-semibold text-slate-500">
+              Esta talla trae {selectedPackUnits} unidades por paquete.
+            </span>
           </label>
         ) : null}
 
@@ -97,7 +97,7 @@ export function ProductCard({ product }: { product: Product }) {
           <button
             type="button"
             onClick={() => addToCart(product.id, selectedSize)}
-            disabled={selectedSizeStock <= 0}
+            disabled={product.stock <= 0}
             className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-4 py-2.5 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ShoppingCart size={16} />

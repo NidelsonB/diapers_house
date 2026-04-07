@@ -103,10 +103,16 @@ export const seedProducts: Product[] = [
     slug: "baby-care-panal-m-x50",
     name: "Baby Care x50",
     description:
-      "Pañal para bebé de la línea Baby Care, suave al contacto y con buen rendimiento diario.",
+      "Pañal para bebé de la línea Baby Care, suave al contacto y con presentaciones que cambian según la talla.",
     price: 9,
     size: "M",
     sizeOptions: ["M", "L", "XL", "XXL"],
+    sizePackageInfo: [
+      { size: "M", units: 50 },
+      { size: "L", units: 46 },
+      { size: "XL", units: 44 },
+      { size: "XXL", units: 40 },
+    ],
     sortOrder: 4,
     brand: "Baby Care",
     pack: "50 unidades",

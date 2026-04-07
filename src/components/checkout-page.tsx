@@ -167,7 +167,7 @@ export function CheckoutPage() {
         <div className="mt-4 space-y-3 text-sm text-slate-600">
           {cartItemsDetailed.map((item) => (
             <div key={item.cartKey} className="flex justify-between gap-3">
-              <span>{item.quantity} × {item.product.name} · Talla {item.selectedSize}</span>
+              <span>{item.quantity} × {item.product.name} · Talla {item.selectedSize} · Paquete x{item.selectedPackUnits}</span>
               <span>{formatCurrency(item.subtotal)}</span>
             </div>
           ))}

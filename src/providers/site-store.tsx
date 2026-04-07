@@ -12,10 +12,10 @@ import {
 
 import { createSeedData, defaultAdmin } from "@/data/seed";
 import {
+  formatProductPackLabel,
   getProductSizeOptions,
-  getProductSizeStock,
-  getProductTotalStock,
-  normalizeSizeInventory,
+  getProductSizeUnits,
+  normalizeSizePackageInfo,
   slugify,
 } from "@/lib/utils";
 import {
@@ -28,8 +28,8 @@ import {
   SiteData,
 } from "@/types/site";
 
-const DATA_KEY = "lcdp-site-data-v5-size-stock";
-const CART_KEY = "lcdp-cart-v5-size-stock";
+const DATA_KEY = "lcdp-site-data-v6-size-package-units";
+const CART_KEY = "lcdp-cart-v6-size-package-units";
 const AUTH_KEY = "lcdp-admin-auth";
 
 interface CheckoutPayload {
@@ -53,7 +53,9 @@ interface SiteStoreValue {
     quantity: number;
     subtotal: number;
     selectedSize: string;
-    availableStock: number;
+    selectedPackUnits: number;
+    packLabel: string;
+    maxQuantity: number;
   }>;
   addToCart: (productId: string, selectedSize?: string) => void;
   updateCartQuantity: (productId: string, quantity: number, selectedSize?: string) => void;
@@ -73,7 +75,7 @@ interface SiteStoreValue {
 
 const normalizeProduct = (product: Product): Product => {
   const normalizedSizeOptions = getProductSizeOptions(product);
-  const normalizedSizeInventory = normalizeSizeInventory({
+  const normalizedPackageInfo = normalizeSizePackageInfo({
     ...product,
     sizeOptions: normalizedSizeOptions,
   });
@@ -82,12 +84,8 @@ const normalizeProduct = (product: Product): Product => {
     ...product,
     size: normalizedSizeOptions[0] ?? product.size ?? "Única",
     sizeOptions: normalizedSizeOptions,
-    sizeInventory: normalizedSizeInventory,
-    stock: getProductTotalStock({
-      ...product,
-      sizeOptions: normalizedSizeOptions,
-      sizeInventory: normalizedSizeInventory,
-    }),
+    sizePackageInfo: normalizedPackageInfo,
+    stock: Math.max(0, Number(product.stock) || 0),
   };
 };
 
@@ -132,14 +130,26 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
         .map((item) => {
           const product = data.products.find((entry) => entry.id === item.productId);
           if (!product) return null;
+
           const selectedSize = item.selectedSize || getProductSizeOptions(product)[0] || product.size || "Única";
-          const availableStock = getProductSizeStock(product, selectedSize);
+          const selectedPackUnits = getProductSizeUnits(product, selectedSize);
+          const otherQuantity = cart.reduce(
+            (total, currentItem) =>
+              currentItem.productId === item.productId && currentItem.selectedSize !== selectedSize
+                ? total + currentItem.quantity
+                : total,
+            0,
+          );
+          const maxQuantity = Math.max(0, product.stock - otherQuantity);
+
           return {
             cartKey: `${item.productId}-${selectedSize}`,
             product,
             quantity: item.quantity,
             selectedSize,
-            availableStock,
+            selectedPackUnits,
+            packLabel: formatProductPackLabel(product, selectedSize),
+            maxQuantity,
             subtotal: item.quantity * product.price,
           };
         })
@@ -149,7 +159,9 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
           quantity: number;
           subtotal: number;
           selectedSize: string;
-          availableStock: number;
+          selectedPackUnits: number;
+          packLabel: string;
+          maxQuantity: number;
         }>,
     [cart, data.products],
   );
@@ -166,25 +178,24 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
 
   const addToCart = useCallback((productId: string, selectedSize?: string) => {
     const product = data.products.find((entry) => entry.id === productId);
-    if (!product) return;
+    if (!product || product.stock <= 0) return;
 
     const normalizedSize = selectedSize || getProductSizeOptions(product)[0] || product.size || "Única";
-    const availableStock = getProductSizeStock(product, normalizedSize);
-
-    if (availableStock <= 0) {
-      return;
-    }
 
     setCart((current) => {
+      const currentQuantityForProduct = current
+        .filter((item) => item.productId === productId)
+        .reduce((total, item) => total + item.quantity, 0);
+
+      if (currentQuantityForProduct >= product.stock) {
+        return current;
+      }
+
       const existing = current.find(
         (item) => item.productId === productId && item.selectedSize === normalizedSize,
       );
 
       if (existing) {
-        if (existing.quantity >= availableStock) {
-          return current;
-        }
-
         return current.map((item) =>
           item.productId === productId && item.selectedSize === normalizedSize
             ? { ...item, quantity: item.quantity + 1 }
@@ -199,9 +210,8 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
   const updateCartQuantity = useCallback((productId: string, quantity: number, selectedSize?: string) => {
     const product = data.products.find((entry) => entry.id === productId);
     const normalizedSize = selectedSize || product?.size || "Única";
-    const availableStock = product ? getProductSizeStock(product, normalizedSize) : 0;
 
-    if (quantity <= 0 || availableStock <= 0) {
+    if (quantity <= 0 || !product || product.stock <= 0) {
       setCart((current) =>
         current.filter(
           (item) => !(item.productId === productId && item.selectedSize === normalizedSize),
@@ -210,15 +220,24 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
       return;
     }
 
-    const safeQuantity = Math.min(quantity, availableStock);
+    setCart((current) => {
+      const otherQuantity = current
+        .filter((item) => item.productId === productId && item.selectedSize !== normalizedSize)
+        .reduce((total, item) => total + item.quantity, 0);
+      const safeQuantity = Math.min(quantity, Math.max(0, product.stock - otherQuantity));
 
-    setCart((current) =>
-      current.map((item) =>
+      if (safeQuantity <= 0) {
+        return current.filter(
+          (item) => !(item.productId === productId && item.selectedSize === normalizedSize),
+        );
+      }
+
+      return current.map((item) =>
         item.productId === productId && item.selectedSize === normalizedSize
           ? { ...item, quantity: safeQuantity }
           : item,
-      ),
-    );
+      );
+    });
   }, [data.products]);
 
   const removeFromCart = useCallback((productId: string, selectedSize?: string) => {
@@ -235,15 +254,19 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
 
   const createOrder = useCallback(
     (payload: CheckoutPayload) => {
-      const stockIssue = cartItemsDetailed.find(
-        (item) => item.availableStock <= 0 || item.quantity > item.availableStock,
-      );
+      const stockIssue = data.products.find((product) => {
+        const requestedQuantity = cart
+          .filter((item) => item.productId === product.id)
+          .reduce((total, item) => total + item.quantity, 0);
+
+        return requestedQuantity > product.stock;
+      });
 
       if (stockIssue) {
         return {
           success: false,
           orderId: "",
-          error: `La talla ${stockIssue.selectedSize} de ${stockIssue.product.name} ya no tiene suficientes existencias.`,
+          error: `No hay suficiente inventario general para ${stockIssue.name}.`,
         };
       }
 
@@ -271,31 +294,23 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
         ...current,
         orders: [nextOrder, ...current.orders],
         products: current.products.map((product) => {
-          const itemsForProduct = cart.filter((item) => item.productId === product.id);
-          if (itemsForProduct.length === 0) return product;
+          const requestedQuantity = cart
+            .filter((item) => item.productId === product.id)
+            .reduce((total, item) => total + item.quantity, 0);
 
-          const nextInventory = normalizeSizeInventory(product).map((entry) => {
-            const requestedQuantity = itemsForProduct
-              .filter((item) => (item.selectedSize || product.size) === entry.size)
-              .reduce((total, item) => total + item.quantity, 0);
+          if (requestedQuantity === 0) return product;
 
-            return {
-              ...entry,
-              stock: Math.max(0, entry.stock - requestedQuantity),
-            };
-          });
-
-          return normalizeProduct({
+          return {
             ...product,
-            sizeInventory: nextInventory,
-          });
+            stock: Math.max(0, product.stock - requestedQuantity),
+          };
         }),
       }));
 
       setCart([]);
       return { success: true, orderId };
     },
-    [cart, cartItemsDetailed, cartTotal],
+    [cart, cartItemsDetailed, cartTotal, data.products],
   );
 
   const adminLogin = useCallback((email: string, password: string) => {

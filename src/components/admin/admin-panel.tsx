@@ -121,8 +121,8 @@ export function AdminPanel() {
   const handleProductSubmit = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
-    if (!productForm.name || !productForm.price || !productForm.brand) {
-      setNotice({ type: "error", text: "Completa nombre, precio y marca." });
+    if (!productForm.name || !productForm.price || !productForm.stock || !productForm.brand) {
+      setNotice({ type: "error", text: "Completa nombre, precio, stock general y marca." });
       return;
     }
 
@@ -131,31 +131,29 @@ export function AdminPanel() {
       .map((size) => size.trim())
       .filter(Boolean);
 
-    const parsedSizeInventory = productForm.sizeInventory
+    const parsedSizePackageInfo = productForm.sizeInventory
       .split(/\n|,/)
       .map((entry) => entry.trim())
       .filter(Boolean)
       .map((entry) => {
-        const [sizeLabel, stockLabel] = entry.split(":").map((value) => value.trim());
+        const [sizeLabel, unitsLabel] = entry.split(":").map((value) => value.trim());
         if (!sizeLabel) return null;
 
         return {
           size: sizeLabel,
-          stock: Math.max(0, Number(stockLabel) || 0),
+          units: Math.max(0, Number(unitsLabel) || 0),
         };
       })
-      .filter((entry): entry is { size: string; stock: number } => Boolean(entry));
+      .filter((entry): entry is { size: string; units: number } => Boolean(entry));
 
-    const finalSizeOptions = parsedSizeInventory.length > 0
-      ? parsedSizeInventory.map((entry) => entry.size)
+    const finalSizeOptions = parsedSizePackageInfo.length > 0
+      ? parsedSizePackageInfo.map((entry) => entry.size)
       : normalizedSizeOptions.length > 0
         ? normalizedSizeOptions
         : [productForm.size || "Única"];
 
     const defaultSize = productForm.size || finalSizeOptions[0] || "Única";
-    const computedStock = parsedSizeInventory.length > 0
-      ? parsedSizeInventory.reduce((total, entry) => total + entry.stock, 0)
-      : Math.max(0, Number(productForm.stock) || 0);
+    const computedStock = Math.max(0, Number(productForm.stock) || 0);
     const currentSortOrder = data.products.find((item) => item.id === productForm.id)?.sortOrder ?? data.products.length + 1;
 
     upsertProduct({
@@ -167,7 +165,7 @@ export function AdminPanel() {
       originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
       size: defaultSize,
       sizeOptions: finalSizeOptions,
-      sizeInventory: parsedSizeInventory.length > 0 ? parsedSizeInventory : [{ size: defaultSize, stock: computedStock }],
+      sizePackageInfo: parsedSizePackageInfo,
       sortOrder: currentSortOrder,
       brand: productForm.brand,
       pack: productForm.pack,
@@ -394,10 +392,10 @@ export function AdminPanel() {
                 <input value={productForm.size} onChange={(event) => setProductForm((current) => ({ ...current, size: event.target.value }))} placeholder="Talla predeterminada" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               </div>
               <input value={productForm.sizeOptions} onChange={(event) => setProductForm((current) => ({ ...current, sizeOptions: event.target.value }))} placeholder="Tallas disponibles: RN, S, M, L" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
-              <textarea value={productForm.sizeInventory} onChange={(event) => setProductForm((current) => ({ ...current, sizeInventory: event.target.value }))} rows={3} placeholder="Existencias por talla: RN:12, S:10, M:8, L:6" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
+              <textarea value={productForm.sizeInventory} onChange={(event) => setProductForm((current) => ({ ...current, sizeInventory: event.target.value }))} rows={3} placeholder="Unidades por paquete según talla: M:50, L:46, XL:44, XXL:40" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               <div className="grid grid-cols-2 gap-3">
                 <input type="number" step="0.01" value={productForm.price} onChange={(event) => setProductForm((current) => ({ ...current, price: event.target.value }))} placeholder="Precio" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
-                <input type="number" value={productForm.stock} onChange={(event) => setProductForm((current) => ({ ...current, stock: event.target.value }))} placeholder="Stock total (si no usas tallas)" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
+                <input type="number" value={productForm.stock} onChange={(event) => setProductForm((current) => ({ ...current, stock: event.target.value }))} placeholder="Stock general en bodega (solo admin)" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <input value={productForm.pack} onChange={(event) => setProductForm((current) => ({ ...current, pack: event.target.value }))} placeholder="Presentación" className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
@@ -458,8 +456,8 @@ export function AdminPanel() {
                       />
                       <div>
                         <p className="font-bold text-slate-900">{product.name}</p>
-                        <p className="text-sm text-slate-600">{product.brand} · Tallas {(product.sizeOptions?.length ? product.sizeOptions.join(", ") : product.size)} · {product.pack} · Stock total {product.stock}</p>
-                        <p className="text-xs text-slate-500">{product.sizeInventory?.map((item) => `${item.size}: ${item.stock}`).join(" · ") || `${product.size}: ${product.stock}`}</p>
+                        <p className="text-sm text-slate-600">{product.brand} · Tallas {(product.sizeOptions?.length ? product.sizeOptions.join(", ") : product.size)} · {product.pack} · Stock general {product.stock}</p>
+                        <p className="text-xs text-slate-500">{product.sizePackageInfo?.map((item) => `${item.size}: ${item.units} und/paq`).join(" · ") || "Usa el campo de unidades por talla para personalizar la presentación."}</p>
                         <p className="text-sm font-semibold text-brand-secondary">{formatCurrency(product.price)}</p>
                       </div>
                     </div>
@@ -477,7 +475,7 @@ export function AdminPanel() {
                             originalPrice: product.originalPrice ? String(product.originalPrice) : "",
                             size: product.size,
                             sizeOptions: product.sizeOptions?.join(", ") || product.size,
-                            sizeInventory: product.sizeInventory?.map((item) => `${item.size}:${item.stock}`).join(", ") || `${product.size}:${product.stock}`,
+                            sizeInventory: product.sizePackageInfo?.map((item) => `${item.size}:${item.units}`).join(", ") || "",
                             brand: product.brand,
                             pack: product.pack,
                             stock: String(product.stock),

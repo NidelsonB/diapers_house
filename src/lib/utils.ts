@@ -1,4 +1,4 @@
-import { OrderStatus, Product, SizeInventoryItem } from "@/types/site";
+import { OrderStatus, Product, SizePackageInfo } from "@/types/site";
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-SV", {
@@ -30,8 +30,14 @@ export const withBasePath = (path: string) => {
   return `${basePath}${normalizedPath}`;
 };
 
+const extractPackUnits = (pack: string) => {
+  const match = pack.match(/\d+/);
+  return match ? Number(match[0]) : 0;
+};
+
 export const getProductSizeOptions = (product: Product) => {
   const options = [
+    ...(product.sizePackageInfo?.map((item) => item.size) ?? []),
     ...(product.sizeInventory?.map((item) => item.size) ?? []),
     ...(product.sizeOptions ?? []),
   ]
@@ -45,48 +51,45 @@ export const getProductSizeOptions = (product: Product) => {
   return product.size ? [product.size] : [];
 };
 
-export const normalizeSizeInventory = (product: Product): SizeInventoryItem[] => {
+export const normalizeSizePackageInfo = (product: Product): SizePackageInfo[] => {
   const sizeOptions = getProductSizeOptions(product);
-  const totalStock = Math.max(0, Number(product.stock) || 0);
+  const fallbackUnits = extractPackUnits(product.pack);
+  const provided = [
+    ...(product.sizePackageInfo ?? []),
+    ...((product.sizeInventory ?? []).map((item) => ({ size: item.size, units: item.stock }))),
+  ]
+    .map((item) => ({
+      size: item.size.trim(),
+      units: Math.max(0, Number(item.units) || 0),
+    }))
+    .filter((item) => item.size);
 
-  if (product.sizeInventory?.length) {
-    const inventoryMap = new Map(
-      product.sizeInventory.map((item) => [item.size.trim(), Math.max(0, Number(item.stock) || 0)]),
-    );
+  if (provided.length > 0) {
+    const unitsMap = new Map(provided.map((item) => [item.size, item.units]));
+    const sizes = sizeOptions.length > 0 ? sizeOptions : provided.map((item) => item.size);
 
-    return sizeOptions.map((size) => ({
+    return sizes.map((size) => ({
       size,
-      stock: inventoryMap.get(size) ?? 0,
+      units: unitsMap.get(size) ?? fallbackUnits,
     }));
   }
 
-  if (sizeOptions.length <= 1) {
-    return [{ size: sizeOptions[0] ?? product.size ?? "Única", stock: totalStock }];
-  }
-
-  const baseStock = Math.floor(totalStock / sizeOptions.length);
-  const remainder = totalStock % sizeOptions.length;
-
-  return sizeOptions.map((size, index) => ({
-    size,
-    stock: baseStock + (index < remainder ? 1 : 0),
-  }));
+  const sizes = sizeOptions.length > 0 ? sizeOptions : [product.size || "Única"];
+  return sizes.map((size) => ({ size, units: fallbackUnits }));
 };
 
-export const getProductSizeStock = (product: Product, size?: string) => {
+export const getProductSizeUnits = (product: Product, size?: string) => {
   const normalizedSize = size?.trim() || product.size;
-  const inventory = normalizeSizeInventory(product);
-  const match = inventory.find((item) => item.size === normalizedSize);
+  const packageInfo = normalizeSizePackageInfo(product);
+  const match = packageInfo.find((item) => item.size === normalizedSize);
 
-  if (match) {
-    return match.stock;
-  }
-
-  return inventory[0]?.stock ?? Math.max(0, Number(product.stock) || 0);
+  return match?.units ?? packageInfo[0]?.units ?? extractPackUnits(product.pack);
 };
 
-export const getProductTotalStock = (product: Product) =>
-  normalizeSizeInventory(product).reduce((total, item) => total + item.stock, 0);
+export const formatProductPackLabel = (product: Product, size?: string) => {
+  const units = getProductSizeUnits(product, size);
+  return units > 0 ? `${units} unidades por paquete` : product.pack;
+};
 
 export const orderStatuses: OrderStatus[] = [
   "Nuevo",

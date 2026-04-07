@@ -6,7 +6,7 @@ import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
-import { formatCurrency, getProductSizeOptions, getProductSizeStock, withBasePath } from "@/lib/utils";
+import { formatCurrency, formatProductPackLabel, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
@@ -14,8 +14,8 @@ export function ProductDetailPage({ slug }: { slug: string }) {
   const product = data.products.find((item) => item.slug === slug);
   const sizeOptions = product ? getProductSizeOptions(product) : [];
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product?.size ?? "");
-  const selectedSizeStock = product ? getProductSizeStock(product, selectedSize) : 0;
-  const availabilityLabel = !product ? "" : selectedSizeStock > 8 ? "Disponible" : selectedSizeStock > 0 ? "Últimas unidades" : "Agotado";
+  const selectedPackUnits = product ? getProductSizeUnits(product, selectedSize) : 0;
+  const availabilityLabel = !product ? "" : product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
 
   useEffect(() => {
     if (product) {
@@ -65,12 +65,9 @@ export function ProductDetailPage({ slug }: { slug: string }) {
             <span className="rounded-full bg-slate-100 px-3 py-1.5">
               {sizeOptions.length > 1 ? `Talla seleccionada ${selectedSize}` : `Talla ${product.size}`}
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5">{product.pack}</span>
-            <span className={`rounded-full px-3 py-1.5 ${selectedSizeStock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+            <span className="rounded-full bg-slate-100 px-3 py-1.5">{formatProductPackLabel(product, selectedSize)}</span>
+            <span className={`rounded-full px-3 py-1.5 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
               {availabilityLabel}
-            </span>
-            <span className="rounded-full bg-brand-soft px-3 py-1.5 text-brand-secondary">
-              {selectedSizeStock} disponibles en talla {selectedSize}
             </span>
           </div>
 
@@ -84,10 +81,13 @@ export function ProductDetailPage({ slug }: { slug: string }) {
               >
                 {sizeOptions.map((size) => (
                   <option key={size} value={size}>
-                    {size} · {getProductSizeStock(product, size)} disponibles
+                    {size} · paquete de {getProductSizeUnits(product, size)} unidades
                   </option>
                 ))}
               </select>
+              <span className="mt-2 block text-xs font-semibold text-slate-500">
+                La talla {selectedSize} trae {selectedPackUnits} unidades por paquete.
+              </span>
             </label>
           ) : null}
 
@@ -102,7 +102,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
             <p className="font-bold text-brand-secondary">Lo que encontrarás en esta ficha:</p>
             <ul className="mt-2 space-y-1">
               <li>• Selección de talla antes de agregar al carrito.</li>
-              <li>• Presentación y disponibilidad actualizada.</li>
+              <li>• Unidades por paquete visibles según la talla elegida.</li>
               <li>• Compra directa o agregado al carrito con un clic.</li>
             </ul>
           </div>
@@ -110,7 +110,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
           <button
             type="button"
             onClick={() => addToCart(product.id, selectedSize)}
-            disabled={selectedSizeStock <= 0}
+            disabled={product.stock <= 0}
             className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ShoppingCart size={16} />
