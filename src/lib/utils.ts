@@ -1,4 +1,4 @@
-import { OrderStatus, Product } from "@/types/site";
+import { OrderStatus, Product, SizeInventoryItem } from "@/types/site";
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-SV", {
@@ -31,7 +31,10 @@ export const withBasePath = (path: string) => {
 };
 
 export const getProductSizeOptions = (product: Product) => {
-  const options = (product.sizeOptions ?? [])
+  const options = [
+    ...(product.sizeInventory?.map((item) => item.size) ?? []),
+    ...(product.sizeOptions ?? []),
+  ]
     .map((option) => option.trim())
     .filter(Boolean);
 
@@ -41,6 +44,49 @@ export const getProductSizeOptions = (product: Product) => {
 
   return product.size ? [product.size] : [];
 };
+
+export const normalizeSizeInventory = (product: Product): SizeInventoryItem[] => {
+  const sizeOptions = getProductSizeOptions(product);
+  const totalStock = Math.max(0, Number(product.stock) || 0);
+
+  if (product.sizeInventory?.length) {
+    const inventoryMap = new Map(
+      product.sizeInventory.map((item) => [item.size.trim(), Math.max(0, Number(item.stock) || 0)]),
+    );
+
+    return sizeOptions.map((size) => ({
+      size,
+      stock: inventoryMap.get(size) ?? 0,
+    }));
+  }
+
+  if (sizeOptions.length <= 1) {
+    return [{ size: sizeOptions[0] ?? product.size ?? "Única", stock: totalStock }];
+  }
+
+  const baseStock = Math.floor(totalStock / sizeOptions.length);
+  const remainder = totalStock % sizeOptions.length;
+
+  return sizeOptions.map((size, index) => ({
+    size,
+    stock: baseStock + (index < remainder ? 1 : 0),
+  }));
+};
+
+export const getProductSizeStock = (product: Product, size?: string) => {
+  const normalizedSize = size?.trim() || product.size;
+  const inventory = normalizeSizeInventory(product);
+  const match = inventory.find((item) => item.size === normalizedSize);
+
+  if (match) {
+    return match.stock;
+  }
+
+  return inventory[0]?.stock ?? Math.max(0, Number(product.stock) || 0);
+};
+
+export const getProductTotalStock = (product: Product) =>
+  normalizeSizeInventory(product).reduce((total, item) => total + item.stock, 0);
 
 export const orderStatuses: OrderStatus[] = [
   "Nuevo",

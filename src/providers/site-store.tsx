@@ -11,7 +11,13 @@ import {
 } from "react";
 
 import { createSeedData, defaultAdmin } from "@/data/seed";
-import { getProductSizeOptions, slugify } from "@/lib/utils";
+import {
+  getProductSizeOptions,
+  getProductSizeStock,
+  getProductTotalStock,
+  normalizeSizeInventory,
+  slugify,
+} from "@/lib/utils";
 import {
   BusinessSettings,
   CartItem,
@@ -22,8 +28,8 @@ import {
   SiteData,
 } from "@/types/site";
 
-const DATA_KEY = "lcdp-site-data-v4-catalog-order";
-const CART_KEY = "lcdp-cart-v4-catalog-order";
+const DATA_KEY = "lcdp-site-data-v5-size-stock";
+const CART_KEY = "lcdp-cart-v5-size-stock";
 const AUTH_KEY = "lcdp-admin-auth";
 
 interface CheckoutPayload {
@@ -41,12 +47,19 @@ interface SiteStoreValue {
   isAdminAuthenticated: boolean;
   cartCount: number;
   cartTotal: number;
-  cartItemsDetailed: Array<{ cartKey: string; product: Product; quantity: number; subtotal: number; selectedSize: string }>;
+  cartItemsDetailed: Array<{
+    cartKey: string;
+    product: Product;
+    quantity: number;
+    subtotal: number;
+    selectedSize: string;
+    availableStock: number;
+  }>;
   addToCart: (productId: string, selectedSize?: string) => void;
   updateCartQuantity: (productId: string, quantity: number, selectedSize?: string) => void;
   removeFromCart: (productId: string, selectedSize?: string) => void;
   clearCart: () => void;
-  createOrder: (payload: CheckoutPayload) => { success: boolean; orderId: string };
+  createOrder: (payload: CheckoutPayload) => { success: boolean; orderId: string; error?: string };
   adminLogin: (email: string, password: string) => boolean;
   adminLogout: () => void;
   upsertProduct: (product: Product) => void;
@@ -58,14 +71,39 @@ interface SiteStoreValue {
   resetDemoData: () => void;
 }
 
-const initialData = createSeedData();
+const normalizeProduct = (product: Product): Product => {
+  const normalizedSizeOptions = getProductSizeOptions(product);
+  const normalizedSizeInventory = normalizeSizeInventory({
+    ...product,
+    sizeOptions: normalizedSizeOptions,
+  });
+
+  return {
+    ...product,
+    size: normalizedSizeOptions[0] ?? product.size ?? "Única",
+    sizeOptions: normalizedSizeOptions,
+    sizeInventory: normalizedSizeInventory,
+    stock: getProductTotalStock({
+      ...product,
+      sizeOptions: normalizedSizeOptions,
+      sizeInventory: normalizedSizeInventory,
+    }),
+  };
+};
+
+const normalizeSiteData = (siteData: SiteData): SiteData => ({
+  ...siteData,
+  products: siteData.products.map((product) => normalizeProduct(product)),
+});
+
+const initialData = normalizeSiteData(createSeedData());
 const SiteStoreContext = createContext<SiteStoreValue | null>(null);
 
 export function SiteStoreProvider({ children }: { children: ReactNode }) {
   const [data, setData] = useState<SiteData>(() => {
     if (typeof window === "undefined") return initialData;
     const storedData = window.localStorage.getItem(DATA_KEY);
-    return storedData ? JSON.parse(storedData) : createSeedData();
+    return storedData ? normalizeSiteData(JSON.parse(storedData)) : initialData;
   });
   const [cart, setCart] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") return [];
@@ -95,15 +133,24 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
           const product = data.products.find((entry) => entry.id === item.productId);
           if (!product) return null;
           const selectedSize = item.selectedSize || getProductSizeOptions(product)[0] || product.size || "Única";
+          const availableStock = getProductSizeStock(product, selectedSize);
           return {
             cartKey: `${item.productId}-${selectedSize}`,
             product,
             quantity: item.quantity,
             selectedSize,
+            availableStock,
             subtotal: item.quantity * product.price,
           };
         })
-        .filter(Boolean) as Array<{ cartKey: string; product: Product; quantity: number; subtotal: number; selectedSize: string }>,
+        .filter(Boolean) as Array<{
+          cartKey: string;
+          product: Product;
+          quantity: number;
+          subtotal: number;
+          selectedSize: string;
+          availableStock: number;
+        }>,
     [cart, data.products],
   );
 
@@ -119,7 +166,14 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
 
   const addToCart = useCallback((productId: string, selectedSize?: string) => {
     const product = data.products.find((entry) => entry.id === productId);
-    const normalizedSize = selectedSize || (product ? getProductSizeOptions(product)[0] : "") || product?.size || "Única";
+    if (!product) return;
+
+    const normalizedSize = selectedSize || getProductSizeOptions(product)[0] || product.size || "Única";
+    const availableStock = getProductSizeStock(product, normalizedSize);
+
+    if (availableStock <= 0) {
+      return;
+    }
 
     setCart((current) => {
       const existing = current.find(
@@ -127,6 +181,10 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
       );
 
       if (existing) {
+        if (existing.quantity >= availableStock) {
+          return current;
+        }
+
         return current.map((item) =>
           item.productId === productId && item.selectedSize === normalizedSize
             ? { ...item, quantity: item.quantity + 1 }
@@ -139,21 +197,29 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
   }, [data.products]);
 
   const updateCartQuantity = useCallback((productId: string, quantity: number, selectedSize?: string) => {
-    if (quantity <= 0) {
+    const product = data.products.find((entry) => entry.id === productId);
+    const normalizedSize = selectedSize || product?.size || "Única";
+    const availableStock = product ? getProductSizeStock(product, normalizedSize) : 0;
+
+    if (quantity <= 0 || availableStock <= 0) {
       setCart((current) =>
         current.filter(
-          (item) => !(item.productId === productId && item.selectedSize === selectedSize),
+          (item) => !(item.productId === productId && item.selectedSize === normalizedSize),
         ),
       );
       return;
     }
 
+    const safeQuantity = Math.min(quantity, availableStock);
+
     setCart((current) =>
       current.map((item) =>
-        item.productId === productId && item.selectedSize === selectedSize ? { ...item, quantity } : item,
+        item.productId === productId && item.selectedSize === normalizedSize
+          ? { ...item, quantity: safeQuantity }
+          : item,
       ),
     );
-  }, []);
+  }, [data.products]);
 
   const removeFromCart = useCallback((productId: string, selectedSize?: string) => {
     setCart((current) =>
@@ -169,6 +235,18 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
 
   const createOrder = useCallback(
     (payload: CheckoutPayload) => {
+      const stockIssue = cartItemsDetailed.find(
+        (item) => item.availableStock <= 0 || item.quantity > item.availableStock,
+      );
+
+      if (stockIssue) {
+        return {
+          success: false,
+          orderId: "",
+          error: `La talla ${stockIssue.selectedSize} de ${stockIssue.product.name} ya no tiene suficientes existencias.`,
+        };
+      }
+
       const orderId = `ORD-${Date.now().toString().slice(-6)}`;
       const nextOrder: Order = {
         id: orderId,
@@ -193,12 +271,24 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
         ...current,
         orders: [nextOrder, ...current.orders],
         products: current.products.map((product) => {
-          const found = cart.find((item) => item.productId === product.id);
-          if (!found) return product;
-          return {
+          const itemsForProduct = cart.filter((item) => item.productId === product.id);
+          if (itemsForProduct.length === 0) return product;
+
+          const nextInventory = normalizeSizeInventory(product).map((entry) => {
+            const requestedQuantity = itemsForProduct
+              .filter((item) => (item.selectedSize || product.size) === entry.size)
+              .reduce((total, item) => total + item.quantity, 0);
+
+            return {
+              ...entry,
+              stock: Math.max(0, entry.stock - requestedQuantity),
+            };
+          });
+
+          return normalizeProduct({
             ...product,
-            stock: Math.max(0, product.stock - found.quantity),
-          };
+            sizeInventory: nextInventory,
+          });
         }),
       }));
 
@@ -234,12 +324,12 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
         .map((option) => option.trim())
         .filter(Boolean);
 
-      const normalized = {
+      const normalized = normalizeProduct({
         ...product,
         slug: product.slug || slugify(product.name),
         size: normalizedOptions[0] ?? product.size,
         sizeOptions: normalizedOptions,
-      };
+      });
 
       return {
         ...current,
@@ -308,7 +398,7 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const resetDemoData = useCallback(() => {
-    const seed = createSeedData();
+    const seed = normalizeSiteData(createSeedData());
     setData(seed);
     setCart([]);
     setIsAdminAuthenticated(false);

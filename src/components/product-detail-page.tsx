@@ -6,15 +6,16 @@ import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
-import { formatCurrency, getProductSizeOptions, withBasePath } from "@/lib/utils";
+import { formatCurrency, getProductSizeOptions, getProductSizeStock, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
   const { addToCart, data } = useSiteStore();
   const product = data.products.find((item) => item.slug === slug);
-  const availabilityLabel = !product ? "" : product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
   const sizeOptions = product ? getProductSizeOptions(product) : [];
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product?.size ?? "");
+  const selectedSizeStock = product ? getProductSizeStock(product, selectedSize) : 0;
+  const availabilityLabel = !product ? "" : selectedSizeStock > 8 ? "Disponible" : selectedSizeStock > 0 ? "Últimas unidades" : "Agotado";
 
   useEffect(() => {
     if (product) {
@@ -65,8 +66,11 @@ export function ProductDetailPage({ slug }: { slug: string }) {
               {sizeOptions.length > 1 ? `Talla seleccionada ${selectedSize}` : `Talla ${product.size}`}
             </span>
             <span className="rounded-full bg-slate-100 px-3 py-1.5">{product.pack}</span>
-            <span className={`rounded-full px-3 py-1.5 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
+            <span className={`rounded-full px-3 py-1.5 ${selectedSizeStock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
               {availabilityLabel}
+            </span>
+            <span className="rounded-full bg-brand-soft px-3 py-1.5 text-brand-secondary">
+              {selectedSizeStock} disponibles en talla {selectedSize}
             </span>
           </div>
 
@@ -80,7 +84,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
               >
                 {sizeOptions.map((size) => (
                   <option key={size} value={size}>
-                    {size}
+                    {size} · {getProductSizeStock(product, size)} disponibles
                   </option>
                 ))}
               </select>
@@ -106,7 +110,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
           <button
             type="button"
             onClick={() => addToCart(product.id, selectedSize)}
-            disabled={product.stock <= 0}
+            disabled={selectedSizeStock <= 0}
             className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ShoppingCart size={16} />

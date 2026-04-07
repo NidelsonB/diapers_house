@@ -86,7 +86,10 @@ export function CheckoutPage() {
     if (result.success) {
       setConfirmedTotal(totalAtCheckout);
       setOrderId(result.orderId);
+      return;
     }
+
+    setError(result.error || "No fue posible confirmar el pedido por disponibilidad.");
   };
 
   return (

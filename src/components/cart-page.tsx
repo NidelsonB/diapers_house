@@ -39,6 +39,7 @@ export function CartPage() {
                 <p className="text-xs font-bold uppercase tracking-[0.24em] text-brand-primary">{item.product.brand}</p>
                 <h2 className="text-xl font-bold text-slate-900">{item.product.name}</h2>
                 <p className="text-sm text-slate-600">{item.product.pack} · Talla {item.selectedSize}</p>
+                <p className="text-xs font-semibold text-slate-500">Disponibles en esa talla: {item.availableStock}</p>
               </div>
 
               <div className="flex flex-wrap items-center gap-3">
@@ -55,7 +56,8 @@ export function CartPage() {
                   <button
                     type="button"
                     onClick={() => updateCartQuantity(item.product.id, item.quantity + 1, item.selectedSize)}
-                    className="rounded-full p-1 text-slate-700"
+                    disabled={item.quantity >= item.availableStock}
+                    className="rounded-full p-1 text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
                     aria-label="Aumentar cantidad"
                   >
                     <Plus size={16} />
