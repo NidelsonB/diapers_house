@@ -63,7 +63,7 @@ Esta rama `qa` queda pensada para un VPS con Easypanel usando Docker Compose.
 Recomendado en Easypanel:
 
 1. Crear una app desde repositorio Git y seleccionar la rama `qa`.
-2. Usar `docker-compose.prod.yml` como archivo de despliegue.
+2. Usar `docker-compose.qa.yml` como archivo de despliegue.
 3. Configurar estas variables en Easypanel:
 
 ```env
@@ -80,8 +80,9 @@ SEED_DATABASE=true
 Notas:
 
 - `NEXT_PUBLIC_SITE_URL` debe apuntar al dominio QA real para metadata, sitemap y SEO.
-- En el primer arranque puedes dejar `SEED_DATABASE=true` para cargar datos base.
-- Despues de validar el entorno QA, puedes cambiar `SEED_DATABASE=false` para evitar resembrados innecesarios.
+- `docker-compose.qa.yml` levanta una base MySQL interna y efimera usando `tmpfs`.
+- QA no se conecta a tu base de datos real; cada recreacion del stack parte desde cero.
+- Deja `SEED_DATABASE=true` para que el entorno QA siempre arranque con datos demo y usuario administrador.
 - El servicio `app` incluye `healthcheck`, y `nginx` espera a que la aplicacion este saludable antes de exponer trafico.
 
 ## Acceso administrador inicial
