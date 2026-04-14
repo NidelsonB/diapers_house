@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import { Mail, MapPin, Phone } from "lucide-react";
 
@@ -13,7 +13,7 @@ export function ContactPage() {
         <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Contacto</p>
         <h1 className="text-4xl font-black text-slate-900">Estamos para ayudarte</h1>
         <p className="mt-2 max-w-2xl text-slate-600">
-          Usa esta página para mostrar sucursales, medios de contacto y atención personalizada dentro de la misma plataforma.
+          Contáctanos por WhatsApp, correo o visita la sucursal que te quede mejor. Estamos listos para orientarte en tu compra.
         </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -29,8 +29,8 @@ export function ContactPage() {
           </article>
           <article className="rounded-[24px] bg-slate-50 p-5">
             <div className="mb-3 inline-flex rounded-2xl bg-brand-soft p-3 text-brand-primary"><MapPin size={18} /></div>
-            <h2 className="font-bold text-slate-900">Cobertura</h2>
-            <p className="mt-2 text-sm text-slate-600">Elige la sucursal que mejor te quede para comprar o consultar.</p>
+            <h2 className="font-bold text-slate-900">Sucursales</h2>
+            <p className="mt-2 text-sm text-slate-600">Elige la sucursal más conveniente para comprar o consultar disponibilidad.</p>
           </article>
         </div>
       </div>

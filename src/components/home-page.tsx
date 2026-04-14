@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -11,15 +11,15 @@ import { useSiteStore } from "@/providers/site-store";
 const faqs = [
   {
     question: "¿Puedo pedir por WhatsApp además de la web?",
-    answer: "Sí. El sitio está listo para compra directa y también para cerrar pedidos por WhatsApp.",
+    answer: "Sí. Puedes comprar desde la web o escribirnos por WhatsApp si prefieres atención personalizada.",
   },
   {
     question: "¿Cómo sé qué talla elegir?",
-    answer: "Cada producto muestra talla, marca y presentación. Además, puedes contactarnos para asesoría rápida.",
+    answer: "Cada producto muestra talla, marca y presentación. Si tienes dudas, te ayudamos a elegir la opción adecuada.",
   },
   {
     question: "¿Qué pasa si necesito ayuda para elegir?",
-    answer: "Puedes escribirnos por WhatsApp y te orientamos según la talla, etapa y necesidad de tu bebé.",
+    answer: "Puedes escribirnos por WhatsApp y te orientamos según la etapa, la talla y el tipo de cuidado que necesitas.",
   },
 ];
 
@@ -39,7 +39,7 @@ export function HomePage() {
             <h1 className="max-w-2xl text-4xl font-black tracking-tight text-slate-900 md:text-6xl">
               {data.settings.heroBanner.title}
             </h1>
-            <p className="max-w-2xl text-lg text-slate-600">{data.settings.heroBanner.subtitle}</p>
+            <p className="max-w-2xl text-lg text-slate-600">{data.settings.heroBanner.subtitle} Compra en línea desde El Salvador con atención rápida y cercana.</p>
             <p className="inline-flex rounded-full bg-brand-accent px-4 py-2 text-sm font-bold text-brand-secondary">
               {data.settings.heroBanner.highlight}
             </p>
@@ -57,7 +57,7 @@ export function HomePage() {
               href="/contacto"
               className="inline-flex items-center justify-center rounded-full border border-slate-300 px-5 py-3 text-sm font-bold text-slate-700 transition hover:border-brand-primary hover:text-brand-primary"
             >
-              Ver sucursales
+              Ver contacto
             </Link>
           </div>
 
@@ -137,7 +137,7 @@ export function HomePage() {
               <h2 className="text-3xl font-black">Compra inteligente para el hogar</h2>
             </div>
             <p className="max-w-xl text-sm text-slate-200">
-              Packs jumbo, promociones semanales y productos nuevos para ayudarte a ahorrar en cada compra.
+              Promociones, presentaciones rendidoras y opciones para bebé, adulto y cuidado diario en un solo lugar.
             </p>
           </div>
           <div className="grid gap-5 md:grid-cols-3">
@@ -151,14 +151,14 @@ export function HomePage() {
       <section className="mx-auto grid max-w-7xl gap-6 px-4 py-12 md:grid-cols-2 md:px-6">
         <article className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
           <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Sobre nosotros</p>
-          <h2 className="mt-3 text-3xl font-black text-slate-900">Una tienda confiable para familias reales</h2>
+          <h2 className="mt-3 text-3xl font-black text-slate-900">Cuidado diario con atención cercana</h2>
           <p className="mt-4 text-slate-600">
-            La Casa del Pañal está pensada para brindar una experiencia cercana, rápida y clara. El diseño combina calidez, orden visual y llamados a la acción bien visibles para facilitar la compra.
+            En La Casa del Pañal encuentras pañales, toallitas, protectores y productos de cuidado diario para bebé, adulto y hogar, con atención rápida para clientes en El Salvador y acompañamiento cuando lo necesites.
           </p>
           <ul className="mt-5 space-y-3 text-sm text-slate-700">
-            <li>• Plataforma responsive para móvil, tablet y escritorio.</li>
-            <li>• Catálogo con filtros, búsqueda y fichas completas de producto.</li>
-            <li>• Compra rápida, clara y pensada para familias ocupadas.</li>
+            <li>• Compra desde cualquier dispositivo, de forma simple y segura.</li>
+            <li>• Catálogo organizado por categorías para encontrar rápido lo que buscas.</li>
+            <li>• Atención por WhatsApp para resolver dudas antes de comprar.</li>
           </ul>
         </article>
 

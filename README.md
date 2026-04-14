@@ -1,112 +1,108 @@
-# La Casa del Pañal
+# La Casa del Panal
 
-Tienda web moderna, responsive y lista para presentación comercial, con **sitio público** y **panel administrador** dentro de la misma plataforma.
+Tienda web con frontend en Next.js 16 y backend integrado sobre App Router, Prisma y MySQL.
 
----
+## Stack de produccion
 
-## ✨ Stack elegido
+- Next.js 16 + React 19 + TypeScript
+- Prisma ORM
+- MySQL 8
+- Autenticacion admin con sesion segura por cookie HTTP-only
+- Docker + Nginx como reverse proxy
 
-- **Next.js 16 + React 19 + TypeScript**
-  - Excelente rendimiento, SEO básico y estructura escalable.
-- **Tailwind CSS 4**
-  - Permite una UI moderna, limpia y consistente.
-- **Estado local + localStorage**
-  - Ideal para este MVP funcional sin backend real todavía.
+## Backend incluido
 
-> Esta base quedó preparada para crecer luego a autenticación robusta, base de datos real y pagos en línea.
-
----
-
-## ✅ Funcionalidades incluidas
-
-### Sitio público
-- Home visual con hero/banner principal
-- Beneficios y mensajes de confianza
-- Catálogo con búsqueda y filtros
-- Fichas de producto
-- Carrito de compras
-- Checkout claro
-- Página de contacto y sucursales
-- Botón flotante de WhatsApp
-- Diseño responsive para móvil, tablet y escritorio
-
-### Panel administrador
-- Login de administrador
 - CRUD de productos
-- CRUD de categorías
-- Gestión de stock y precios
-- Gestión de pedidos y estados
-- Gestión de contenido general del home y sucursales
-- Dashboard con métricas básicas
-- Validaciones y confirmaciones de borrado
+- CRUD de categorias
+- Checkout con creacion real de pedidos
+- Actualizacion de estados de pedido
+- Configuracion general del negocio
+- Seed inicial de datos y usuario administrador
+- Persistencia real en MySQL
 
----
+## Variables de entorno
 
-## 🔐 Acceso demo al panel
+Crea `.env` a partir de `.env.example`.
 
-- **URL:** `/admin/login`
-- **Correo:** `admin@lacasadelpanal.com`
-- **Contraseña:** `Admin123*`
+Variables clave:
 
----
+- `DATABASE_URL`
+- `SESSION_SECRET`
+- `ADMIN_EMAIL`
+- `ADMIN_PASSWORD`
+- `ADMIN_NAME`
 
-## 🚀 Ejecutar localmente
+## Desarrollo local
 
 ```bash
 npm install
+npm run db:push
+npm run db:seed
 npm run dev
 ```
 
-Abrir en el navegador:
+## Produccion con Docker
 
 ```bash
-http://localhost:3000
+cp .env.example .env
+# edita credenciales seguras
+
+docker compose -f docker-compose.prod.yml up --build -d
 ```
 
-Para validar la versión de producción:
+Servicios:
+
+- `mysql`: base de datos MySQL 8
+- `app`: servidor Next.js
+- `nginx`: reverse proxy publico
+
+## Despliegue en Easypanel
+
+Esta rama `qa` queda pensada para un VPS con Easypanel usando Docker Compose.
+
+Recomendado en Easypanel:
+
+1. Crear una app desde repositorio Git y seleccionar la rama `qa`.
+2. Usar `docker-compose.prod.yml` como archivo de despliegue.
+3. Configurar estas variables en Easypanel:
+
+```env
+NEXT_PUBLIC_SITE_URL=https://qa.tudominio.com
+SESSION_SECRET=una-clave-larga-y-segura
+ADMIN_EMAIL=admin@lacasadelpanal.com
+ADMIN_PASSWORD=una-clave-segura
+ADMIN_NAME=Administrador
+MYSQL_PASSWORD=una-clave-mysql
+MYSQL_ROOT_PASSWORD=otra-clave-root
+SEED_DATABASE=true
+```
+
+Notas:
+
+- `NEXT_PUBLIC_SITE_URL` debe apuntar al dominio QA real para metadata, sitemap y SEO.
+- En el primer arranque puedes dejar `SEED_DATABASE=true` para cargar datos base.
+- Despues de validar el entorno QA, puedes cambiar `SEED_DATABASE=false` para evitar resembrados innecesarios.
+- El servicio `app` incluye `healthcheck`, y `nginx` espera a que la aplicacion este saludable antes de exponer trafico.
+
+## Acceso administrador inicial
+
+- URL: `/admin/login`
+- Correo: valor de `ADMIN_EMAIL`
+- Clave: valor de `ADMIN_PASSWORD`
+
+## Scripts utiles
 
 ```bash
+npm run db:generate
+npm run db:push
+npm run db:seed
+npm run db:reset
 npm run build
-npm start
+npm run start
 ```
 
----
+## Notas de despliegue
 
-## 📁 Estructura principal
-
-```text
-src/
-  app/              # Rutas públicas y admin
-  components/       # Componentes reutilizables
-  data/             # Datos demo iniciales
-  lib/              # Utilidades
-  providers/        # Estado global del sitio
-  types/            # Tipos TypeScript
-public/
-  brand/            # Branding visual
-  products/         # Imágenes demo del catálogo
-```
-
----
-
-## 🧪 Datos demo y comportamiento
-
-- Los productos, categorías, pedidos y contenido general se cargan con datos de ejemplo realistas.
-- Los cambios hechos en el panel se guardan en `localStorage` para la demo.
-- El botón **Reset demo** restaura el estado inicial.
-
----
-
-## 🔮 Siguientes pasos recomendados para producción
-
-1. Integrar base de datos real (`PostgreSQL` + `Prisma`)
-2. Agregar autenticación segura (`NextAuth` o similar)
-3. Integrar pagos (`Mercado Pago` o `Stripe`)
-4. Subida real de imágenes a cloud storage
-5. Gestión avanzada de clientes y pedidos
-
----
-
-## 📌 Estado actual
-
-Proyecto listo para mostrar a cliente como **MVP profesional**, con buena base técnica y visual para evolucionar a una tienda real.
+- La app ya no usa `output: export`; ahora corre como servidor Node para habilitar API y MySQL.
+- El Dockerfile ejecuta `prisma db push` al iniciar el contenedor.
+- Si `SEED_DATABASE=true`, el arranque inserta el seed base y asegura el usuario administrador.

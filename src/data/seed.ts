@@ -33,7 +33,7 @@ export const seedCategories: Category[] = [
     id: "cat-wipes-paper",
     name: "Toallas húmedas + papel higiénico",
     slug: "toallas-humedas-y-papel-higienico",
-    description: "Toallitas húmedas y presentaciones de papel higiénico en el orden que compartiste.",
+    description: "Toallitas húmedas y papel higiénico para el cuidado diario en casa o fuera de ella.",
     icon: "🧻",
   },
   {
@@ -787,44 +787,44 @@ export const seedProducts: Product[] = [
 
 export const seedSettings: BusinessSettings = {
   businessName: "La Casa del Pañal",
-  email: "info@lacasadelpañal.com",
+  email: "info@lacasadelpanal.com",
   whatsappNumbers: ["7726-4949", "7888-4198"],
   socialLinks: {
     instagram: "https://www.instagram.com/lacasadelpamper/?hl=es",
     facebook: "https://www.facebook.com/lacasadelpampersv?locale=es_LA",
   },
   trustMessages: [
-    "Catálogo actualizado",
+    "Precios actualizados",
     "Pedidos a domicilio",
     "Atención personalizada",
-    "Productos del PDF",
+    "Compra fácil",
   ],
   heroBanner: {
-    title: "Catálogo actualizado para bebé, adulto y hogar",
+    title: "Encuentra pañales y cuidado diario en un solo lugar",
     subtitle:
-      "Explora los productos del PDF de Pañalín Express: pañales para bebé y adulto, protectores, toallitas, papel higiénico y cuidado femenino en un solo lugar.",
-    highlight: "Precios vigentes del catálogo compartido",
+      "Compra pañales para bebé y adulto, protectores, toallitas, papel higiénico y más, con atención rápida y precios claros.",
+    highlight: "Precios actualizados para tu compra",
     ctaText: "Ver catálogo",
   },
   branches: [
     {
       id: "branch-1",
       name: "Sucursal Centro",
-      address: "San Salvador, zona centro · ubicación editable desde el panel",
+      address: "San Salvador, zona centro",
       hours: "Lun-Sáb · 8:00 a.m. - 6:00 p.m.",
       phones: ["7726-4949"],
     },
     {
       id: "branch-2",
       name: "Sucursal Escalón",
-      address: "Colonia Escalón · dirección editable para tu presentación",
+      address: "Colonia Escalón, San Salvador",
       hours: "Lun-Dom · 9:00 a.m. - 7:00 p.m.",
       phones: ["7888-4198"],
     },
     {
       id: "branch-3",
       name: "Sucursal Santa Ana",
-      address: "Sucursal demostrativa para futuras ubicaciones",
+      address: "Santa Ana, zona céntrica",
       hours: "Lun-Sáb · 8:30 a.m. - 5:30 p.m.",
       phones: ["7726-4949", "7888-4198"],
     },
@@ -929,3 +929,4 @@ export const createSeedData = (): SiteData => ({
   orders: JSON.parse(JSON.stringify(seedOrders)),
   settings: JSON.parse(JSON.stringify(seedSettings)),
 });
+

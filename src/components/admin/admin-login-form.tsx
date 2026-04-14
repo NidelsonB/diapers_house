@@ -12,13 +12,16 @@ export function AdminLoginForm() {
   const [email, setEmail] = useState("admin@lacasadelpanal.com");
   const [password, setPassword] = useState("Admin123*");
   const [error, setError] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    const ok = adminLogin(email, password);
+    setIsSubmitting(true);
+    const ok = await adminLogin(email, password);
+    setIsSubmitting(false);
 
     if (!ok) {
-      setError("Credenciales inválidas. Usa el acceso demo para esta presentación.");
+      setError("Credenciales invalidas. Verifica el usuario administrador configurado en el servidor.");
       return;
     }
 
@@ -34,7 +37,7 @@ export function AdminLoginForm() {
         </div>
         <h1 className="mt-4 text-center text-3xl font-black text-slate-900">Acceso administrador</h1>
         <p className="mt-2 text-center text-sm text-slate-600">
-          Panel protegido con autenticación básica para el MVP.
+          Panel protegido con autenticacion real del servidor.
         </p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
@@ -49,7 +52,7 @@ export function AdminLoginForm() {
           </label>
 
           <label className="block space-y-2 text-sm font-semibold text-slate-700">
-            Contraseña
+            Contrasena
             <input
               type="password"
               value={password}
@@ -60,15 +63,19 @@ export function AdminLoginForm() {
 
           {error ? <p className="text-sm font-semibold text-red-600">{error}</p> : null}
 
-          <button type="submit" className="w-full rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white">
-            Ingresar al panel
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="w-full rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting ? "Validando..." : "Ingresar al panel"}
           </button>
         </form>
 
         <div className="mt-5 rounded-2xl bg-brand-soft p-4 text-sm text-slate-700">
-          <p className="font-bold text-brand-secondary">Credenciales demo</p>
+          <p className="font-bold text-brand-secondary">Administrador inicial</p>
           <p>Correo: admin@lacasadelpanal.com</p>
-          <p>Clave: Admin123*</p>
+          <p>Clave: usa `ADMIN_PASSWORD` de tu entorno</p>
         </div>
       </div>
     </div>

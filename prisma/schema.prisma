@@ -1,0 +1,103 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+model AdminUser {
+  id           String         @id @default(cuid())
+  email        String         @unique
+  passwordHash String
+  name         String
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+  sessions     AdminSession[]
+}
+
+model AdminSession {
+  id          String    @id @default(cuid())
+  tokenHash   String    @unique
+  expiresAt   DateTime
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  adminUserId String
+  adminUser   AdminUser @relation(fields: [adminUserId], references: [id], onDelete: Cascade)
+
+  @@index([adminUserId])
+  @@index([expiresAt])
+}
+
+model Category {
+  id          String    @id
+  name        String
+  slug        String    @unique
+  description String    @db.Text
+  icon        String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  products    Product[]
+
+  @@index([name])
+}
+
+model Product {
+  id              String   @id
+  slug            String   @unique
+  name            String
+  description     String   @db.Text
+  price           Float
+  originalPrice   Float?
+  size            String
+  sizeOptions     Json?
+  sizePackageInfo Json?
+  sortOrder       Int      @default(0)
+  brand           String
+  pack            String
+  stock           Int      @default(0)
+  categoryId      String
+  category        Category @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  image           String   @db.LongText
+  featured        Boolean  @default(false)
+  isNew           Boolean  @default(false)
+  onSale          Boolean  @default(false)
+  tags            Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([categoryId])
+  @@index([sortOrder])
+  @@index([name])
+}
+
+model Order {
+  id           String   @id
+  customerName String
+  phone        String
+  branch       String
+  address      String   @db.Text
+  notes        String?  @db.Text
+  total        Float
+  status       String
+  items        Json
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  @@index([createdAt])
+  @@index([status])
+}
+
+model SiteSettings {
+  id              Int      @id
+  businessName    String
+  email           String
+  whatsappNumbers Json
+  socialLinks     Json
+  branches        Json
+  trustMessages   Json
+  heroBanner      Json
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}

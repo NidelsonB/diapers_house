@@ -1,12 +1,12 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ArrowLeft, ShoppingCart } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
-import { formatCurrency, formatProductPackLabel, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
+import { formatCurrency, getProductDisplayName, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
@@ -15,13 +15,8 @@ export function ProductDetailPage({ slug }: { slug: string }) {
   const sizeOptions = product ? getProductSizeOptions(product) : [];
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product?.size ?? "");
   const selectedPackUnits = product ? getProductSizeUnits(product, selectedSize) : 0;
+  const displayName = product ? getProductDisplayName(product) : "";
   const availabilityLabel = !product ? "" : product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
-
-  useEffect(() => {
-    if (product) {
-      setSelectedSize(sizeOptions[0] ?? product.size);
-    }
-  }, [product?.id, product?.size, product?.sizeOptions?.join("|")]);
 
   if (!product) {
     return (
@@ -50,14 +45,14 @@ export function ProductDetailPage({ slug }: { slug: string }) {
       <div className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
         <div className="rounded-[32px] bg-white p-5 shadow-sm ring-1 ring-slate-200">
           <div className="flex h-[360px] items-center justify-center rounded-[24px] bg-[linear-gradient(135deg,#f8f5ff_0%,#fffde5_100%)] p-4">
-            <Image src={withBasePath(product.image)} alt={product.name} width={420} height={320} className="h-full w-auto object-contain" />
+            <Image src={withBasePath(product.image)} alt={displayName} width={420} height={320} className="h-full w-auto object-contain" />
           </div>
         </div>
 
         <div className="space-y-5 rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200">
           <div>
             <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">{product.brand}</p>
-            <h1 className="mt-2 text-4xl font-black text-slate-900">{product.name}</h1>
+            <h1 className="mt-2 text-4xl font-black text-slate-900">{displayName}</h1>
             <p className="mt-3 text-slate-600">{product.description}</p>
           </div>
 
@@ -65,7 +60,6 @@ export function ProductDetailPage({ slug }: { slug: string }) {
             <span className="rounded-full bg-slate-100 px-3 py-1.5">
               {sizeOptions.length > 1 ? `Talla seleccionada ${selectedSize}` : `Talla ${product.size}`}
             </span>
-            <span className="rounded-full bg-slate-100 px-3 py-1.5">{formatProductPackLabel(product, selectedSize)}</span>
             <span className={`rounded-full px-3 py-1.5 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
               {availabilityLabel}
             </span>

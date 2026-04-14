@@ -30,6 +30,16 @@ export const withBasePath = (path: string) => {
   return `${basePath}${normalizedPath}`;
 };
 
+export const getProductDisplayName = (product: Product) => {
+  const normalizedName = product.name
+    .replace(/\s+x\d+\b/gi, "")
+    .replace(/\s+(RN|S|M|L|XL|XXL|XXXL)\b(?=\s*(?:x\d+)?$)/gi, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+  return normalizedName || product.brand;
+};
+
 const extractPackUnits = (pack: string) => {
   const match = pack.match(/\d+/);
   return match ? Number(match[0]) : 0;

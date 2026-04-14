@@ -10,7 +10,6 @@ import {
   useState,
 } from "react";
 
-import { createSeedData, defaultAdmin } from "@/data/seed";
 import {
   formatProductPackLabel,
   getProductSizeOptions,
@@ -22,15 +21,12 @@ import {
   BusinessSettings,
   CartItem,
   Category,
-  Order,
   OrderStatus,
   Product,
   SiteData,
 } from "@/types/site";
 
-const DATA_KEY = "lcdp-site-data-v6-size-package-units";
-const CART_KEY = "lcdp-cart-v6-size-package-units";
-const AUTH_KEY = "lcdp-admin-auth";
+const CART_KEY = "lcdp-cart-v7-mysql";
 
 interface CheckoutPayload {
   customerName: string;
@@ -61,16 +57,16 @@ interface SiteStoreValue {
   updateCartQuantity: (productId: string, quantity: number, selectedSize?: string) => void;
   removeFromCart: (productId: string, selectedSize?: string) => void;
   clearCart: () => void;
-  createOrder: (payload: CheckoutPayload) => { success: boolean; orderId: string; error?: string };
-  adminLogin: (email: string, password: string) => boolean;
-  adminLogout: () => void;
-  upsertProduct: (product: Product) => void;
-  deleteProduct: (id: string) => void;
-  upsertCategory: (category: Category) => void;
-  deleteCategory: (id: string) => void;
-  updateOrderStatus: (id: string, status: OrderStatus) => void;
-  updateSettings: (settings: BusinessSettings) => void;
-  resetDemoData: () => void;
+  createOrder: (payload: CheckoutPayload) => Promise<{ success: boolean; orderId: string; error?: string }>;
+  adminLogin: (email: string, password: string) => Promise<boolean>;
+  adminLogout: () => Promise<void>;
+  upsertProduct: (product: Product) => Promise<void>;
+  deleteProduct: (id: string) => Promise<void>;
+  upsertCategory: (category: Category) => Promise<void>;
+  deleteCategory: (id: string) => Promise<void>;
+  updateOrderStatus: (id: string, status: OrderStatus) => Promise<void>;
+  updateSettings: (settings: BusinessSettings) => Promise<void>;
+  resetDemoData: () => Promise<void>;
 }
 
 const normalizeProduct = (product: Product): Product => {
@@ -82,7 +78,7 @@ const normalizeProduct = (product: Product): Product => {
 
   return {
     ...product,
-    size: normalizedSizeOptions[0] ?? product.size ?? "Única",
+    size: normalizedSizeOptions[0] ?? product.size ?? "Unica",
     sizeOptions: normalizedSizeOptions,
     sizePackageInfo: normalizedPackageInfo,
     stock: Math.max(0, Number(product.stock) || 0),
@@ -94,35 +90,93 @@ const normalizeSiteData = (siteData: SiteData): SiteData => ({
   products: siteData.products.map((product) => normalizeProduct(product)),
 });
 
-const initialData = normalizeSiteData(createSeedData());
 const SiteStoreContext = createContext<SiteStoreValue | null>(null);
 
-export function SiteStoreProvider({ children }: { children: ReactNode }) {
-  const [data, setData] = useState<SiteData>(() => {
-    if (typeof window === "undefined") return initialData;
-    const storedData = window.localStorage.getItem(DATA_KEY);
-    return storedData ? normalizeSiteData(JSON.parse(storedData)) : initialData;
+const fetchJson = async <T,>(input: RequestInfo, init?: RequestInit): Promise<T> => {
+  const response = await fetch(input, {
+    ...init,
+    headers: {
+      "Content-Type": "application/json",
+      ...(init?.headers ?? {}),
+    },
   });
+
+  const payload = (await response.json()) as T & { error?: string };
+  if (!response.ok) {
+    throw new Error(payload.error || "Request failed");
+  }
+
+  return payload;
+};
+
+export function SiteStoreProvider({
+  children,
+  initialData,
+  initialIsAdminAuthenticated,
+}: {
+  children: ReactNode;
+  initialData: SiteData;
+  initialIsAdminAuthenticated: boolean;
+}) {
+  const [data, setData] = useState<SiteData>(() => normalizeSiteData(initialData));
   const [cart, setCart] = useState<CartItem[]>(() => {
     if (typeof window === "undefined") return [];
     const storedCart = window.localStorage.getItem(CART_KEY);
     return storedCart ? JSON.parse(storedCart) : [];
   });
   const isReady = true;
-  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(AUTH_KEY) === "true";
-  });
-
-  useEffect(() => {
-    if (!isReady || typeof window === "undefined") return;
-    window.localStorage.setItem(DATA_KEY, JSON.stringify(data));
-  }, [data, isReady]);
+  const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(initialIsAdminAuthenticated);
 
   useEffect(() => {
     if (!isReady || typeof window === "undefined") return;
     window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
   }, [cart, isReady]);
+
+  const refreshPublicData = useCallback(async () => {
+    const response = await fetchJson<{ data: SiteData }>("/api/site", { method: "GET" });
+    setData(normalizeSiteData(response.data));
+  }, []);
+
+  const refreshAdminData = useCallback(async () => {
+    const response = await fetch("/api/admin/dashboard", { method: "GET" });
+
+    if (response.status === 401) {
+      setIsAdminAuthenticated(false);
+      await refreshPublicData();
+      return false;
+    }
+
+    const payload = (await response.json()) as { data: SiteData; error?: string };
+    if (!response.ok) {
+      throw new Error(payload.error || "No fue posible cargar el panel.");
+    }
+
+    setData(normalizeSiteData(payload.data));
+    setIsAdminAuthenticated(true);
+    return true;
+  }, [refreshPublicData]);
+
+  useEffect(() => {
+    if (!isReady) return;
+
+    const syncSession = async () => {
+      try {
+        const response = await fetchJson<{ authenticated: boolean }>("/api/admin/session", { method: "GET" });
+        setIsAdminAuthenticated(response.authenticated);
+
+        if (response.authenticated) {
+          await refreshAdminData();
+          return;
+        }
+
+        await refreshPublicData();
+      } catch {
+        setIsAdminAuthenticated(false);
+      }
+    };
+
+    void syncSession();
+  }, [isReady, refreshAdminData, refreshPublicData]);
 
   const cartItemsDetailed = useMemo(
     () =>
@@ -131,7 +185,7 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
           const product = data.products.find((entry) => entry.id === item.productId);
           if (!product) return null;
 
-          const selectedSize = item.selectedSize || getProductSizeOptions(product)[0] || product.size || "Única";
+          const selectedSize = item.selectedSize || getProductSizeOptions(product)[0] || product.size || "Unica";
           const selectedPackUnits = getProductSizeUnits(product, selectedSize);
           const otherQuantity = cart.reduce(
             (total, currentItem) =>
@@ -166,21 +220,14 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
     [cart, data.products],
   );
 
-  const cartCount = useMemo(
-    () => cart.reduce((total, item) => total + item.quantity, 0),
-    [cart],
-  );
-
-  const cartTotal = useMemo(
-    () => cartItemsDetailed.reduce((total, item) => total + item.subtotal, 0),
-    [cartItemsDetailed],
-  );
+  const cartCount = useMemo(() => cart.reduce((total, item) => total + item.quantity, 0), [cart]);
+  const cartTotal = useMemo(() => cartItemsDetailed.reduce((total, item) => total + item.subtotal, 0), [cartItemsDetailed]);
 
   const addToCart = useCallback((productId: string, selectedSize?: string) => {
     const product = data.products.find((entry) => entry.id === productId);
     if (!product || product.stock <= 0) return;
 
-    const normalizedSize = selectedSize || getProductSizeOptions(product)[0] || product.size || "Única";
+    const normalizedSize = selectedSize || getProductSizeOptions(product)[0] || product.size || "Unica";
 
     setCart((current) => {
       const currentQuantityForProduct = current
@@ -209,13 +256,11 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
 
   const updateCartQuantity = useCallback((productId: string, quantity: number, selectedSize?: string) => {
     const product = data.products.find((entry) => entry.id === productId);
-    const normalizedSize = selectedSize || product?.size || "Única";
+    const normalizedSize = selectedSize || product?.size || "Unica";
 
     if (quantity <= 0 || !product || product.stock <= 0) {
       setCart((current) =>
-        current.filter(
-          (item) => !(item.productId === productId && item.selectedSize === normalizedSize),
-        ),
+        current.filter((item) => !(item.productId === productId && item.selectedSize === normalizedSize)),
       );
       return;
     }
@@ -227,9 +272,7 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
       const safeQuantity = Math.min(quantity, Math.max(0, product.stock - otherQuantity));
 
       if (safeQuantity <= 0) {
-        return current.filter(
-          (item) => !(item.productId === productId && item.selectedSize === normalizedSize),
-        );
+        return current.filter((item) => !(item.productId === productId && item.selectedSize === normalizedSize));
       }
 
       return current.map((item) =>
@@ -242,9 +285,7 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
 
   const removeFromCart = useCallback((productId: string, selectedSize?: string) => {
     setCart((current) =>
-      current.filter(
-        (item) => !(item.productId === productId && item.selectedSize === selectedSize),
-      ),
+      current.filter((item) => !(item.productId === productId && item.selectedSize === selectedSize)),
     );
   }, []);
 
@@ -252,177 +293,122 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
     setCart([]);
   }, []);
 
-  const createOrder = useCallback(
-    (payload: CheckoutPayload) => {
-      const stockIssue = data.products.find((product) => {
-        const requestedQuantity = cart
-          .filter((item) => item.productId === product.id)
-          .reduce((total, item) => total + item.quantity, 0);
-
-        return requestedQuantity > product.stock;
-      });
-
-      if (stockIssue) {
-        return {
-          success: false,
-          orderId: "",
-          error: `No hay suficiente inventario general para ${stockIssue.name}.`,
-        };
-      }
-
-      const orderId = `ORD-${Date.now().toString().slice(-6)}`;
-      const nextOrder: Order = {
-        id: orderId,
-        customerName: payload.customerName,
-        phone: payload.phone,
-        branch: payload.branch,
-        address: payload.address,
-        notes: payload.notes,
-        total: cartTotal,
-        status: "Nuevo",
-        createdAt: new Date().toISOString(),
-        items: cartItemsDetailed.map((item) => ({
-          productId: item.product.id,
-          name: item.product.name,
-          price: item.product.price,
-          quantity: item.quantity,
-          selectedSize: item.selectedSize,
-        })),
-      };
-
-      setData((current) => ({
-        ...current,
-        orders: [nextOrder, ...current.orders],
-        products: current.products.map((product) => {
-          const requestedQuantity = cart
-            .filter((item) => item.productId === product.id)
-            .reduce((total, item) => total + item.quantity, 0);
-
-          if (requestedQuantity === 0) return product;
-
-          return {
-            ...product,
-            stock: Math.max(0, product.stock - requestedQuantity),
-          };
+  const createOrderAction = useCallback(async (payload: CheckoutPayload) => {
+    try {
+      const response = await fetchJson<{ success: boolean; orderId: string; total: number }>("/api/orders", {
+        method: "POST",
+        body: JSON.stringify({
+          ...payload,
+          items: cartItemsDetailed.map((item) => ({
+            productId: item.product.id,
+            quantity: item.quantity,
+            selectedSize: item.selectedSize,
+          })),
         }),
-      }));
+      });
 
       setCart([]);
-      return { success: true, orderId };
-    },
-    [cart, cartItemsDetailed, cartTotal, data.products],
-  );
+      if (isAdminAuthenticated) {
+        await refreshAdminData();
+      } else {
+        await refreshPublicData();
+      }
 
-  const adminLogin = useCallback((email: string, password: string) => {
-    const isValid =
-      email.trim().toLowerCase() === defaultAdmin.email && password === defaultAdmin.password;
-
-    setIsAdminAuthenticated(isValid);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(AUTH_KEY, String(isValid));
+      return { success: true, orderId: response.orderId };
+    } catch (error) {
+      return {
+        success: false,
+        orderId: "",
+        error: error instanceof Error ? error.message : "No fue posible confirmar el pedido.",
+      };
     }
+  }, [cartItemsDetailed, isAdminAuthenticated, refreshAdminData, refreshPublicData]);
 
-    return isValid;
-  }, []);
-
-  const adminLogout = useCallback(() => {
-    setIsAdminAuthenticated(false);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(AUTH_KEY, "false");
-    }
-  }, []);
-
-  const upsertProduct = useCallback((product: Product) => {
-    setData((current) => {
-      const exists = current.products.some((item) => item.id === product.id);
-      const normalizedOptions = (product.sizeOptions ?? [product.size])
-        .map((option) => option.trim())
-        .filter(Boolean);
-
-      const normalized = normalizeProduct({
-        ...product,
-        slug: product.slug || slugify(product.name),
-        size: normalizedOptions[0] ?? product.size,
-        sizeOptions: normalizedOptions,
+  const adminLogin = useCallback(async (email: string, password: string) => {
+    try {
+      await fetchJson<{ success: boolean }>("/api/admin/login", {
+        method: "POST",
+        body: JSON.stringify({ email, password }),
       });
 
-      return {
-        ...current,
-        products: exists
-          ? current.products.map((item) =>
-              item.id === product.id ? normalized : item,
-            )
-          : [{ ...normalized, id: `prod-${Date.now()}` }, ...current.products],
-      };
+      return await refreshAdminData();
+    } catch {
+      setIsAdminAuthenticated(false);
+      return false;
+    }
+  }, [refreshAdminData]);
+
+  const adminLogout = useCallback(async () => {
+    await fetchJson<{ success: boolean }>("/api/admin/logout", { method: "POST" });
+    setIsAdminAuthenticated(false);
+    await refreshPublicData();
+  }, [refreshPublicData]);
+
+  const upsertProductAction = useCallback(async (product: Product) => {
+    const normalizedOptions = (product.sizeOptions ?? [product.size]).map((option) => option.trim()).filter(Boolean);
+    const normalized = {
+      ...product,
+      slug: product.slug || slugify(product.name),
+      size: normalizedOptions[0] ?? product.size,
+      sizeOptions: normalizedOptions,
+      tags: product.tags.filter(Boolean),
+    };
+
+    const response = await fetchJson<{ data: SiteData }>("/api/admin/products", {
+      method: "POST",
+      body: JSON.stringify(normalized),
     });
+    setData(normalizeSiteData(response.data));
   }, []);
 
-  const deleteProduct = useCallback((id: string) => {
-    setData((current) => ({
-      ...current,
-      products: current.products.filter((item) => item.id !== id),
-    }));
+  const deleteProductAction = useCallback(async (id: string) => {
+    const response = await fetchJson<{ data: SiteData }>(`/api/admin/products/${id}`, {
+      method: "DELETE",
+    });
+    setData(normalizeSiteData(response.data));
     setCart((current) => current.filter((item) => item.productId !== id));
   }, []);
 
-  const upsertCategory = useCallback((category: Category) => {
-    setData((current) => {
-      const exists = current.categories.some((item) => item.id === category.id);
-      const normalized = {
+  const upsertCategoryAction = useCallback(async (category: Category) => {
+    const response = await fetchJson<{ data: SiteData }>("/api/admin/categories", {
+      method: "POST",
+      body: JSON.stringify({
         ...category,
         slug: category.slug || slugify(category.name),
-      };
-
-      return {
-        ...current,
-        categories: exists
-          ? current.categories.map((item) =>
-              item.id === category.id ? normalized : item,
-            )
-          : [{ ...normalized, id: `cat-${Date.now()}` }, ...current.categories],
-      };
+      }),
     });
+    setData(normalizeSiteData(response.data));
   }, []);
 
-  const deleteCategory = useCallback((id: string) => {
-    setData((current) => ({
-      ...current,
-      categories: current.categories.filter((item) => item.id !== id),
-      products: current.products.map((product) =>
-        product.categoryId === id
-          ? { ...product, categoryId: current.categories[0]?.id ?? product.categoryId }
-          : product,
-      ),
-    }));
+  const deleteCategoryAction = useCallback(async (id: string) => {
+    const response = await fetchJson<{ data: SiteData }>(`/api/admin/categories/${id}`, {
+      method: "DELETE",
+    });
+    setData(normalizeSiteData(response.data));
   }, []);
 
-  const updateOrderStatus = useCallback((id: string, status: OrderStatus) => {
-    setData((current) => ({
-      ...current,
-      orders: current.orders.map((order) =>
-        order.id === id ? { ...order, status } : order,
-      ),
-    }));
+  const updateOrderStatusAction = useCallback(async (id: string, status: OrderStatus) => {
+    const response = await fetchJson<{ data: SiteData }>(`/api/admin/orders/${id}`, {
+      method: "PATCH",
+      body: JSON.stringify({ status }),
+    });
+    setData(normalizeSiteData(response.data));
   }, []);
 
-  const updateSettings = useCallback((settings: BusinessSettings) => {
-    setData((current) => ({
-      ...current,
-      settings,
-    }));
+  const updateSettingsAction = useCallback(async (settings: BusinessSettings) => {
+    const response = await fetchJson<{ data: SiteData }>("/api/admin/settings", {
+      method: "PUT",
+      body: JSON.stringify(settings),
+    });
+    setData(normalizeSiteData(response.data));
   }, []);
 
-  const resetDemoData = useCallback(() => {
-    const seed = normalizeSiteData(createSeedData());
-    setData(seed);
+  const resetDemoDataAction = useCallback(async () => {
+    await fetchJson<{ loggedOut: boolean }>("/api/admin/reset", { method: "POST" });
     setCart([]);
     setIsAdminAuthenticated(false);
-    if (typeof window !== "undefined") {
-      window.localStorage.setItem(DATA_KEY, JSON.stringify(seed));
-      window.localStorage.setItem(CART_KEY, JSON.stringify([]));
-      window.localStorage.setItem(AUTH_KEY, "false");
-    }
-  }, []);
+    await refreshPublicData();
+  }, [refreshPublicData]);
 
   const value = useMemo(
     () => ({
@@ -437,16 +423,16 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
       updateCartQuantity,
       removeFromCart,
       clearCart,
-      createOrder,
+      createOrder: createOrderAction,
       adminLogin,
       adminLogout,
-      upsertProduct,
-      deleteProduct,
-      upsertCategory,
-      deleteCategory,
-      updateOrderStatus,
-      updateSettings,
-      resetDemoData,
+      upsertProduct: upsertProductAction,
+      deleteProduct: deleteProductAction,
+      upsertCategory: upsertCategoryAction,
+      deleteCategory: deleteCategoryAction,
+      updateOrderStatus: updateOrderStatusAction,
+      updateSettings: updateSettingsAction,
+      resetDemoData: resetDemoDataAction,
     }),
     [
       addToCart,
@@ -457,25 +443,23 @@ export function SiteStoreProvider({ children }: { children: ReactNode }) {
       cartItemsDetailed,
       cartTotal,
       clearCart,
-      createOrder,
+      createOrderAction,
       data,
-      deleteCategory,
-      deleteProduct,
+      deleteCategoryAction,
+      deleteProductAction,
       isAdminAuthenticated,
       isReady,
       removeFromCart,
-      resetDemoData,
+      resetDemoDataAction,
       updateCartQuantity,
-      updateOrderStatus,
-      updateSettings,
-      upsertCategory,
-      upsertProduct,
+      updateOrderStatusAction,
+      updateSettingsAction,
+      upsertCategoryAction,
+      upsertProductAction,
     ],
   );
 
-  return (
-    <SiteStoreContext.Provider value={value}>{children}</SiteStoreContext.Provider>
-  );
+  return <SiteStoreContext.Provider value={value}>{children}</SiteStoreContext.Provider>;
 }
 
 export function useSiteStore() {

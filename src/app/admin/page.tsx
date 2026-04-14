@@ -1,5 +1,14 @@
-import { AdminPanel } from "@/components/admin/admin-panel";
+import { redirect } from "next/navigation";
 
-export default function AdminRoute() {
+import { AdminPanel } from "@/components/admin/admin-panel";
+import { getCurrentAdminSession } from "@/lib/auth";
+
+export default async function AdminRoute() {
+  const session = await getCurrentAdminSession();
+
+  if (!session) {
+    redirect("/admin/login");
+  }
+
   return <AdminPanel />;
 }

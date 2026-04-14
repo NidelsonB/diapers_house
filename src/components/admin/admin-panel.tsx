@@ -100,6 +100,8 @@ export function AdminPanel() {
     }
   }, [isAdminAuthenticated, isReady, router]);
 
+  const isEditingProduct = Boolean(productForm.id);
+
 
   const metrics = useMemo(
     () => [
@@ -118,7 +120,7 @@ export function AdminPanel() {
     return <div className="px-4 py-16 text-center text-slate-600">Cargando panel...</div>;
   }
 
-  const handleProductSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleProductSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!productForm.name || !productForm.price || !productForm.stock || !productForm.brand) {
@@ -156,30 +158,40 @@ export function AdminPanel() {
     const computedStock = Math.max(0, Number(productForm.stock) || 0);
     const currentSortOrder = data.products.find((item) => item.id === productForm.id)?.sortOrder ?? data.products.length + 1;
 
-    upsertProduct({
-      id: productForm.id,
-      slug: productForm.slug || slugify(productForm.name),
-      name: productForm.name,
-      description: productForm.description,
-      price: Number(productForm.price),
-      originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
-      size: defaultSize,
-      sizeOptions: finalSizeOptions,
-      sizePackageInfo: parsedSizePackageInfo,
-      sortOrder: currentSortOrder,
-      brand: productForm.brand,
-      pack: productForm.pack,
-      stock: computedStock,
-      categoryId: productForm.categoryId,
-      image: productForm.image,
-      featured: productForm.featured,
-      isNew: productForm.isNew,
-      onSale: productForm.onSale,
-      tags: [productForm.brand, defaultSize, ...finalSizeOptions, productForm.pack].filter(Boolean),
-    });
+    try {
+      await upsertProduct({
+        id: productForm.id,
+        slug: productForm.slug || slugify(productForm.name),
+        name: productForm.name,
+        description: productForm.description,
+        price: Number(productForm.price),
+        originalPrice: productForm.originalPrice ? Number(productForm.originalPrice) : undefined,
+        size: defaultSize,
+        sizeOptions: finalSizeOptions,
+        sizePackageInfo: parsedSizePackageInfo,
+        sortOrder: currentSortOrder,
+        brand: productForm.brand,
+        pack: productForm.pack,
+        stock: computedStock,
+        categoryId: productForm.categoryId,
+        image: productForm.image,
+        featured: productForm.featured,
+        isNew: productForm.isNew,
+        onSale: productForm.onSale,
+        tags: [productForm.brand, defaultSize, ...finalSizeOptions, productForm.pack].filter(Boolean),
+      });
 
-    setProductForm({ ...emptyProductForm, categoryId: data.categories[0]?.id ?? "" });
-    setNotice({ type: "success", text: "Producto guardado correctamente." });
+      setProductForm({ ...emptyProductForm, categoryId: data.categories[0]?.id ?? "" });
+      setNotice({
+        type: "success",
+        text: isEditingProduct ? "Producto actualizado correctamente." : "Producto creado correctamente.",
+      });
+    } catch (error) {
+      setNotice({
+        type: "error",
+        text: error instanceof Error ? error.message : "No fue posible guardar el producto.",
+      });
+    }
   };
 
   const handleProductImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -214,64 +226,151 @@ export function AdminPanel() {
     reader.readAsDataURL(file);
   };
 
-  const handleCategorySubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleCategorySubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+
     event.preventDefault();
+
+
 
     if (!categoryForm.name || !categoryForm.description) {
-      setNotice({ type: "error", text: "Completa nombre y descripción de la categoría." });
+
+      setNotice({ type: "error", text: "Completa nombre y descripci?n de la categor?a." });
+
       return;
+
     }
 
-    upsertCategory({
-      id: categoryForm.id,
-      slug: categoryForm.slug || slugify(categoryForm.name),
-      name: categoryForm.name,
-      description: categoryForm.description,
-      icon: categoryForm.icon || "🍼",
-    });
 
-    setCategoryForm(emptyCategoryForm);
-    setNotice({ type: "success", text: "Categoría guardada correctamente." });
-  };
 
-  const handleSettingsSubmit = (event: React.FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+    try {
 
-    const parsedBranches = settingsForm.branchesText
-      .split("\n")
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line, index) => {
-        const [name, address, hours, phones] = line.split("|").map((item) => item.trim());
-        return {
-          id: `branch-${index + 1}`,
-          name: name || `Sucursal ${index + 1}`,
-          address: address || "",
-          hours: hours || "",
-          phones: phones ? phones.split(",").map((phone) => phone.trim()).filter(Boolean) : [],
-        };
+      await upsertCategory({
+
+        id: categoryForm.id,
+
+        slug: categoryForm.slug || slugify(categoryForm.name),
+
+        name: categoryForm.name,
+
+        description: categoryForm.description,
+
+        icon: categoryForm.icon || "??",
+
       });
 
-    updateSettings({
-      businessName: settingsForm.businessName,
-      email: settingsForm.email,
-      whatsappNumbers: settingsForm.whatsappNumbers.split(",").map((item) => item.trim()).filter(Boolean),
-      socialLinks: {
-        instagram: settingsForm.instagram,
-        facebook: settingsForm.facebook,
-      },
-      trustMessages: settingsForm.trustMessages.split(",").map((item) => item.trim()).filter(Boolean),
-      heroBanner: {
-        title: settingsForm.heroTitle,
-        subtitle: settingsForm.heroSubtitle,
-        highlight: settingsForm.heroHighlight,
-        ctaText: settingsForm.heroCta,
-      },
-      branches: parsedBranches,
-    });
 
-    setNotice({ type: "success", text: "Contenido general actualizado." });
+
+      setCategoryForm(emptyCategoryForm);
+
+      setNotice({ type: "success", text: "Categor?a guardada correctamente." });
+
+    } catch (error) {
+
+      setNotice({
+
+        type: "error",
+
+        text: error instanceof Error ? error.message : "No fue posible guardar la categor?a.",
+
+      });
+
+    }
+
   };
+
+
+
+  const handleSettingsSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
+
+    event.preventDefault();
+
+
+
+    const parsedBranches = settingsForm.branchesText
+
+      .split("\n")
+
+      .map((line) => line.trim())
+
+      .filter(Boolean)
+
+      .map((line, index) => {
+
+        const [name, address, hours, phones] = line.split("|").map((item) => item.trim());
+
+        return {
+
+          id: `branch-${index + 1}`,
+
+          name: name || `Sucursal ${index + 1}`,
+
+          address: address || "",
+
+          hours: hours || "",
+
+          phones: phones ? phones.split(",").map((phone) => phone.trim()).filter(Boolean) : [],
+
+        };
+
+      });
+
+
+
+    try {
+
+      await updateSettings({
+
+        businessName: settingsForm.businessName,
+
+        email: settingsForm.email,
+
+        whatsappNumbers: settingsForm.whatsappNumbers.split(",").map((item) => item.trim()).filter(Boolean),
+
+        socialLinks: {
+
+          instagram: settingsForm.instagram,
+
+          facebook: settingsForm.facebook,
+
+        },
+
+        trustMessages: settingsForm.trustMessages.split(",").map((item) => item.trim()).filter(Boolean),
+
+        heroBanner: {
+
+          title: settingsForm.heroTitle,
+
+          subtitle: settingsForm.heroSubtitle,
+
+          highlight: settingsForm.heroHighlight,
+
+          ctaText: settingsForm.heroCta,
+
+        },
+
+        branches: parsedBranches,
+
+      });
+
+
+
+      setNotice({ type: "success", text: "Contenido general actualizado." });
+
+    } catch (error) {
+
+      setNotice({
+
+        type: "error",
+
+        text: error instanceof Error ? error.message : "No fue posible actualizar el contenido general.",
+
+      });
+
+    }
+
+  };
+
+
 
   return (
     <div className="mx-auto max-w-7xl px-4 py-8 md:px-6">
@@ -285,7 +384,7 @@ export function AdminPanel() {
           <button
             type="button"
             onClick={() => {
-              adminLogout();
+              void adminLogout();
               router.push("/admin/login");
             }}
             className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
@@ -297,7 +396,7 @@ export function AdminPanel() {
             type="button"
             onClick={() => {
               if (window.confirm("¿Restaurar la demo completa?")) {
-                resetDemoData();
+                void resetDemoData();
                 router.push("/admin/login");
               }
             }}
@@ -383,7 +482,19 @@ export function AdminPanel() {
       {activeTab === "products" ? (
         <section className="grid gap-6 lg:grid-cols-[420px_1fr]">
           <form onSubmit={handleProductSubmit} className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200">
-            <h2 className="text-xl font-black text-slate-900">{productForm.id ? "Editar producto" : "Nuevo producto"}</h2>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <h2 className="text-xl font-black text-slate-900">{isEditingProduct ? "Editar producto" : "Nuevo producto"}</h2>
+                <p className="mt-1 text-sm text-slate-500">
+                  {isEditingProduct
+                    ? "Estas modificando un producto existente. Si quieres crear uno nuevo, primero reinicia el formulario."
+                    : "Completa el formulario para crear un producto nuevo en la base de datos."}
+                </p>
+              </div>
+              {isEditingProduct ? (
+                <span className="rounded-full bg-amber-100 px-3 py-1 text-xs font-bold text-amber-700">Modo edicion</span>
+              ) : null}
+            </div>
             <div className="mt-4 space-y-3">
               <input value={productForm.name} onChange={(event) => setProductForm((current) => ({ ...current, name: event.target.value }))} placeholder="Nombre del producto" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
               <textarea value={productForm.description} onChange={(event) => setProductForm((current) => ({ ...current, description: event.target.value }))} rows={3} placeholder="Descripción" className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary" />
@@ -433,8 +544,19 @@ export function AdminPanel() {
                 <label className="flex items-center gap-2 rounded-2xl bg-slate-50 px-3 py-2"><input type="checkbox" checked={productForm.onSale} onChange={(event) => setProductForm((current) => ({ ...current, onSale: event.target.checked }))} /> Oferta</label>
               </div>
               <div className="flex gap-2">
-                <button type="submit" className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-bold text-white"><Save size={16} /> Guardar</button>
-                <button type="button" onClick={() => setProductForm({ ...emptyProductForm, categoryId: data.categories[0]?.id ?? "" })} className="rounded-full border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700">Limpiar</button>
+                <button type="submit" className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-bold text-white"><Save size={16} /> {isEditingProduct ? "Actualizar" : "Guardar"}</button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    setProductForm({ ...emptyProductForm, categoryId: data.categories[0]?.id ?? "" });
+                    if (isEditingProduct) {
+                      setNotice({ type: "success", text: "Formulario reiniciado. Ahora el siguiente guardado creara un producto nuevo." });
+                    }
+                  }}
+                  className="rounded-full border border-slate-200 px-4 py-2.5 text-sm font-bold text-slate-700"
+                >
+                  {isEditingProduct ? "Crear nuevo" : "Limpiar"}
+                </button>
               </div>
             </div>
           </form>
@@ -462,11 +584,11 @@ export function AdminPanel() {
                       </div>
                     </div>
                     <div className="flex gap-2">
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setActiveTab("products");
-                          setProductForm({
+                        <button
+                          type="button"
+                          onClick={() => {
+                            setActiveTab("products");
+                            setProductForm({
                             id: product.id,
                             slug: product.slug,
                             name: product.name,
@@ -481,20 +603,24 @@ export function AdminPanel() {
                             stock: String(product.stock),
                             categoryId: product.categoryId,
                             image: product.image,
-                            featured: Boolean(product.featured),
-                            isNew: Boolean(product.isNew),
-                            onSale: Boolean(product.onSale),
-                          });
-                        }}
-                        className="rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
-                      >
+                              featured: Boolean(product.featured),
+                              isNew: Boolean(product.isNew),
+                              onSale: Boolean(product.onSale),
+                            });
+                            setNotice({
+                              type: "success",
+                              text: `Editando ${product.name}. Si no quieres sobreescribirlo, pulsa "Crear nuevo" antes de guardar.`,
+                            });
+                          }}
+                          className="rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700"
+                        >
                         Editar
                       </button>
                       <button
                         type="button"
                         onClick={() => {
                           if (window.confirm(`¿Eliminar ${product.name}?`)) {
-                            deleteProduct(product.id);
+                            void deleteProduct(product.id);
                             setNotice({ type: "success", text: "Producto eliminado." });
                           }
                         }}
@@ -539,7 +665,7 @@ export function AdminPanel() {
                     <button type="button" onClick={() => setCategoryForm({ id: category.id, slug: category.slug, name: category.name, description: category.description, icon: category.icon })} className="rounded-full border border-slate-200 px-4 py-2 text-sm font-bold text-slate-700">Editar</button>
                     <button type="button" disabled={data.categories.length === 1} onClick={() => {
                       if (window.confirm(`¿Eliminar la categoría ${category.name}?`)) {
-                        deleteCategory(category.id);
+                        void deleteCategory(category.id);
                         setNotice({ type: "success", text: "Categoría eliminada." });
                       }
                     }} className="rounded-full border border-red-200 px-4 py-2 text-sm font-bold text-red-600 disabled:cursor-not-allowed disabled:opacity-60">Eliminar</button>
@@ -566,7 +692,7 @@ export function AdminPanel() {
                   </div>
                   <div className="min-w-52 space-y-2">
                     <label className="block text-xs font-bold uppercase tracking-[0.24em] text-slate-500">Estado</label>
-                    <select value={order.status} onChange={(event) => updateOrderStatus(order.id, event.target.value as typeof order.status)} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-primary">
+                    <select value={order.status} onChange={(event) => { void updateOrderStatus(order.id, event.target.value as typeof order.status); }} className="w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-primary">
                       {orderStatuses.map((status) => (
                         <option key={status} value={status}>{status}</option>
                       ))}
@@ -604,3 +730,4 @@ export function AdminPanel() {
     </div>
   );
 }
+

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Link from "next/link";
 import { useMemo, useState } from "react";
@@ -19,6 +19,7 @@ export function CheckoutPage() {
   const [error, setError] = useState("");
   const [orderId, setOrderId] = useState("");
   const [confirmedTotal, setConfirmedTotal] = useState(0);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const whatsappUrl = useMemo(() => {
     if (!orderId) return "#";
@@ -35,7 +36,7 @@ export function CheckoutPage() {
           <div className="mx-auto flex h-16 w-16 items-center justify-center rounded-full bg-emerald-100 text-emerald-700">
             <CheckCircle2 size={28} />
           </div>
-          <h1 className="mt-5 text-3xl font-black text-slate-900">¡Pedido creado con éxito!</h1>
+          <h1 className="mt-5 text-3xl font-black text-slate-900">Pedido creado con éxito</h1>
           <p className="mt-3 text-slate-600">
             Tu número de referencia es <strong>{orderId}</strong>. Hemos recibido tu solicitud y te contactaremos para confirmarla.
           </p>
@@ -64,7 +65,7 @@ export function CheckoutPage() {
     return (
       <div className="mx-auto max-w-3xl px-4 py-16 text-center md:px-6">
         <h1 className="text-3xl font-black text-slate-900">No hay productos para procesar</h1>
-        <p className="mt-3 text-slate-600">Agrega artículos al carrito antes de completar el checkout.</p>
+        <p className="mt-3 text-slate-600">Agrega artículos al carrito antes de completar tu pedido.</p>
         <Link href="/catalogo" className="mt-6 inline-flex rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white">
           Ir al catálogo
         </Link>
@@ -72,17 +73,20 @@ export function CheckoutPage() {
     );
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
 
     if (!form.customerName || !form.phone || !form.branch || !form.address) {
-      setError("Completa nombre, teléfono, sucursal y dirección/indicaciones.");
+      setError("Completa nombre, teléfono, sucursal y dirección o indicaciones.");
       return;
     }
 
     setError("");
+    setIsSubmitting(true);
     const totalAtCheckout = cartTotal;
-    const result = createOrder(form);
+    const result = await createOrder(form);
+    setIsSubmitting(false);
+
     if (result.success) {
       setConfirmedTotal(totalAtCheckout);
       setOrderId(result.orderId);
@@ -97,7 +101,7 @@ export function CheckoutPage() {
       <section className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
         <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Checkout</p>
         <h1 className="text-4xl font-black text-slate-900">Finaliza tu compra</h1>
-        <p className="mt-2 text-slate-600">Flujo claro, rápido y listo para presentación comercial.</p>
+        <p className="mt-2 text-slate-600">Completa tus datos y te ayudaremos a confirmar tu pedido lo antes posible.</p>
 
         <form onSubmit={handleSubmit} className="mt-6 space-y-4">
           <div className="grid gap-4 md:grid-cols-2">
@@ -156,8 +160,12 @@ export function CheckoutPage() {
 
           {error ? <p className="text-sm font-semibold text-red-600">{error}</p> : null}
 
-          <button type="submit" className="inline-flex rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary">
-            Confirmar pedido
+          <button
+            type="submit"
+            disabled={isSubmitting}
+            className="inline-flex rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary disabled:cursor-not-allowed disabled:opacity-70"
+          >
+            {isSubmitting ? "Procesando..." : "Confirmar pedido"}
           </button>
         </form>
       </section>
@@ -167,7 +175,7 @@ export function CheckoutPage() {
         <div className="mt-4 space-y-3 text-sm text-slate-600">
           {cartItemsDetailed.map((item) => (
             <div key={item.cartKey} className="flex justify-between gap-3">
-              <span>{item.quantity} × {item.product.name} · Talla {item.selectedSize} · Paquete x{item.selectedPackUnits}</span>
+              <span>{item.quantity} x {item.product.name} - Talla {item.selectedSize} - Paquete x{item.selectedPackUnits}</span>
               <span>{formatCurrency(item.subtotal)}</span>
             </div>
           ))}

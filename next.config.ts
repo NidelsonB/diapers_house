@@ -1,19 +1,29 @@
 import type { NextConfig } from "next";
 
-const repoName = "diapers_house";
-const isProduction = process.env.NODE_ENV === "production";
-
 const nextConfig: NextConfig = {
-  output: "export",
-  trailingSlash: true,
+  poweredByHeader: false,
   images: {
     unoptimized: true,
   },
-  env: {
-    NEXT_PUBLIC_BASE_PATH: isProduction ? `/${repoName}` : "",
+  experimental: {
+    // Hostinger reports a very high CPU count, which can cause Next to
+    // over-spawn workers and exhaust the process limit on small plans.
+    cpus: 1,
+    workerThreads: false,
   },
-  basePath: isProduction ? `/${repoName}` : "",
-  assetPrefix: isProduction ? `/${repoName}/` : undefined,
+  async headers() {
+    return [
+      {
+        source: "/:path*",
+        headers: [
+          {
+            key: "X-Accel-Buffering",
+            value: "no",
+          },
+        ],
+      },
+    ];
+  },
 };
 
 export default nextConfig;

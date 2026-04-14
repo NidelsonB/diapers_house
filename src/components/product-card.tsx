@@ -1,24 +1,21 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { ShoppingCart } from "lucide-react";
 
 import { useSiteStore } from "@/providers/site-store";
 import { Product } from "@/types/site";
-import { formatCurrency, formatProductPackLabel, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
+import { formatCurrency, getProductDisplayName, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
 
 export function ProductCard({ product }: { product: Product }) {
   const { addToCart } = useSiteStore();
   const sizeOptions = getProductSizeOptions(product);
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product.size);
   const selectedPackUnits = getProductSizeUnits(product, selectedSize);
+  const displayName = getProductDisplayName(product);
   const availabilityLabel = product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
-
-  useEffect(() => {
-    setSelectedSize(sizeOptions[0] ?? product.size);
-  }, [product.id, product.size, product.sizeOptions?.join("|")]);
 
   return (
     <article className="group overflow-hidden rounded-[28px] border border-slate-200 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-xl">
@@ -26,7 +23,7 @@ export function ProductCard({ product }: { product: Product }) {
         <div className="relative flex h-52 items-center justify-center overflow-hidden bg-[linear-gradient(135deg,#f8f5ff_0%,#fffde5_100%)] p-4">
           <Image
             src={withBasePath(product.image)}
-            alt={product.name}
+            alt={displayName}
             width={240}
             height={180}
             className="h-full w-auto object-contain transition duration-300 group-hover:scale-105"
@@ -50,7 +47,7 @@ export function ProductCard({ product }: { product: Product }) {
           <p className="text-xs font-semibold uppercase tracking-[0.24em] text-slate-500">{product.brand}</p>
           <Link href={`/producto/${product.slug}`}>
             <h3 className="text-lg font-bold text-slate-900 transition group-hover:text-brand-primary">
-              {product.name}
+              {displayName}
             </h3>
           </Link>
           <p className="line-clamp-2 text-sm text-slate-600">{product.description}</p>
@@ -60,7 +57,6 @@ export function ProductCard({ product }: { product: Product }) {
           <span className="rounded-full bg-slate-100 px-2.5 py-1">
             {sizeOptions.length > 1 ? `Tallas ${sizeOptions.join(" · ")}` : `Talla ${selectedSize}`}
           </span>
-          <span className="rounded-full bg-slate-100 px-2.5 py-1">{formatProductPackLabel(product, selectedSize)}</span>
           <span className={`rounded-full px-2.5 py-1 ${product.stock > 0 ? "bg-emerald-100 text-emerald-700" : "bg-red-100 text-red-700"}`}>
             {availabilityLabel}
           </span>

@@ -1,4 +1,4 @@
-"use client";
+﻿"use client";
 
 import Image from "next/image";
 import Link from "next/link";
@@ -24,7 +24,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
     () =>
       buildWhatsAppLink(
         data.settings.whatsappNumbers[0] ?? "7726-4949",
-        "Hola, quiero información sobre pañales y promociones disponibles.",
+        "Hola, quiero información sobre pañales y productos de cuidado diario.",
       ),
     [data.settings.whatsappNumbers],
   );
@@ -35,16 +35,16 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto flex max-w-7xl items-center justify-between gap-4 px-4 py-3 md:px-6">
           <Link href="/" className="flex items-center gap-3">
             <Image
-              src={withBasePath("/brand/logo-badge.svg")}
-              alt="La Casa del Pañal"
-              width={48}
-              height={48}
-              className="rounded-2xl"
+              src={withBasePath("/brand/logo-casa-del-panal.png")}
+              alt="La Casa del Panal"
+              width={144}
+              height={144}
+              priority
+              className="h-14 w-auto rounded-2xl object-contain md:h-16"
             />
-            <div>
-              <p className="text-sm font-semibold uppercase tracking-[0.3em] text-brand-primary">La Casa</p>
-              <p className="text-lg font-extrabold text-brand-secondary">del Pañal</p>
-            </div>
+            <span className="whitespace-nowrap text-lg font-extrabold text-brand-secondary md:text-xl">
+              {data.settings.businessName}
+            </span>
           </Link>
 
           <nav className="hidden items-center gap-2 md:flex">
@@ -113,14 +113,20 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-12 md:grid-cols-[1.1fr_0.9fr_1fr] md:px-6">
           <div className="space-y-4">
             <div className="flex items-center gap-3">
-              <Image src={withBasePath("/brand/logo-badge.svg")} alt="Logo" width={42} height={42} />
+              <Image
+                src={withBasePath("/brand/logo-casa-del-panal.png")}
+                alt="La Casa del Panal"
+                width={88}
+                height={88}
+                className="h-14 w-auto rounded-2xl object-contain"
+              />
               <div>
                 <h3 className="text-xl font-extrabold text-brand-secondary">{data.settings.businessName}</h3>
-                <p className="text-sm text-slate-600">Tienda online pensada para familias.</p>
+                <p className="text-sm text-slate-600">Pañales y cuidado diario para cada etapa.</p>
               </div>
             </div>
             <p className="max-w-md text-sm text-slate-600">
-              Una experiencia de compra clara, rápida y confiable para pañales, toallitas y productos esenciales del bebé.
+              Compra pañales para bebé y adulto, toallitas, protectores y productos esenciales con atención rápida y cercana.
             </p>
             <div className="flex gap-3">
               <a
@@ -149,7 +155,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
             <div className="space-y-3 text-sm text-slate-600">
               <p className="flex items-center gap-2"><Phone size={16} className="text-brand-primary" /> {data.settings.whatsappNumbers.join(" · ")}</p>
               <p>{data.settings.email}</p>
-              <p className="flex items-start gap-2"><MapPin size={16} className="mt-0.5 text-brand-primary" /> Varias sucursales disponibles</p>
+              <p className="flex items-start gap-2"><MapPin size={16} className="mt-0.5 text-brand-primary" /> Atención en sucursal y por canales digitales</p>
             </div>
           </div>
 
@@ -167,7 +173,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="border-t border-slate-200 px-4 py-4 text-center text-xs text-slate-500">
-          © 2026 {data.settings.businessName}. Compra fácil, rápida y confiable para tu familia.
+          © 2026 {data.settings.businessName}. Cuidado diario con atención cercana para tu familia.
         </div>
       </footer>
 
