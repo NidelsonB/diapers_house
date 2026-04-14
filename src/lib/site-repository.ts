@@ -21,7 +21,8 @@ const SETTINGS_ID = 1;
 const FALLBACK_CATEGORY_ID = seedCategories[0]?.id ?? "cat-baby";
 type DbClient = PrismaClient | Prisma.TransactionClient;
 const toJson = (value: unknown) => value as Prisma.InputJsonValue;
-const isDatabaseConfigured = Boolean(process.env.DATABASE_URL);
+const isBuildTime = process.env.NEXT_BUILD === "true";
+const isDatabaseConfigured = Boolean(process.env.DATABASE_URL) && !isBuildTime;
 const normalizeEmailAddress = (value: string) =>
   value.normalize("NFD").replace(/[\u0300-\u036f]/g, "");
 
