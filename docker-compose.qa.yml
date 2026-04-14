@@ -26,6 +26,8 @@ services:
     environment:
       NODE_ENV: production
       PORT: 3000
+      MYSQL_USER: diapers_user
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       DATABASE_URL: mysql://diapers_user:${MYSQL_PASSWORD}@mysql:3306/diapers_house
       NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL}
       SESSION_SECRET: ${SESSION_SECRET}
