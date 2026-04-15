@@ -9,8 +9,8 @@ import { useSiteStore } from "@/providers/site-store";
 export function AdminLoginForm() {
   const router = useRouter();
   const { adminLogin } = useSiteStore();
-  const [email, setEmail] = useState("admin@lacasadelpanal.com");
-  const [password, setPassword] = useState("Admin123*");
+  const [email, setEmail] = useState("admin");
+  const [password, setPassword] = useState("admin");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -74,8 +74,8 @@ export function AdminLoginForm() {
 
         <div className="mt-5 rounded-2xl bg-brand-soft p-4 text-sm text-slate-700">
           <p className="font-bold text-brand-secondary">Administrador inicial</p>
-          <p>Correo: admin@lacasadelpanal.com</p>
-          <p>Clave: usa `ADMIN_PASSWORD` de tu entorno</p>
+          <p>Correo: admin</p>
+          <p>Clave: admin</p>
         </div>
       </div>
     </div>

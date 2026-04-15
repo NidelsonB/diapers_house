@@ -9,8 +9,16 @@ const scrypt = promisify(scryptCallback);
 export const ADMIN_SESSION_COOKIE = "lcdp_admin_session";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 7;
 const QA_ADMIN_ID = "qa-admin";
+const QA_ADMIN_TOKEN = "qa-admin-token";
+const QA_STATIC_ADMIN_EMAIL = "admin";
+const QA_STATIC_ADMIN_PASSWORD = "admin";
 
 const isQaAdminBypassEnabled = () => process.env.QA_ADMIN_BYPASS === "true";
+export const isStaticQaAdminMode = () => !process.env.DATABASE_URL;
+export const getStaticQaAdminCredentials = () => ({
+  email: QA_STATIC_ADMIN_EMAIL,
+  password: QA_STATIC_ADMIN_PASSWORD,
+});
 
 const getQaAdminSession = () => ({
   id: "qa-session",
@@ -19,7 +27,7 @@ const getQaAdminSession = () => ({
   adminUserId: QA_ADMIN_ID,
   adminUser: {
     id: QA_ADMIN_ID,
-    email: process.env.ADMIN_EMAIL ?? "admin@lacasadelpanal.com",
+    email: isStaticQaAdminMode() ? QA_STATIC_ADMIN_EMAIL : process.env.ADMIN_EMAIL ?? "admin@lacasadelpanal.com",
     name: process.env.ADMIN_NAME ?? "Administrador QA",
     passwordHash: "",
     createdAt: new Date(),
@@ -62,6 +70,18 @@ export function hashSessionToken(token: string) {
 }
 
 export async function createAdminSession(adminUserId: string) {
+  if (isStaticQaAdminMode()) {
+    const cookieStore = await cookies();
+    cookieStore.set(ADMIN_SESSION_COOKIE, QA_ADMIN_TOKEN, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      expires: new Date(Date.now() + SESSION_DURATION_MS),
+    });
+    return;
+  }
+
   if (isQaAdminBypassEnabled()) {
     return;
   }
@@ -89,6 +109,18 @@ export async function createAdminSession(adminUserId: string) {
 }
 
 export async function clearAdminSession() {
+  if (isStaticQaAdminMode()) {
+    const cookieStore = await cookies();
+    cookieStore.set(ADMIN_SESSION_COOKIE, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      expires: new Date(0),
+    });
+    return;
+  }
+
   if (isQaAdminBypassEnabled()) {
     const cookieStore = await cookies();
     cookieStore.set(ADMIN_SESSION_COOKIE, "", {
@@ -122,6 +154,11 @@ export async function clearAdminSession() {
 }
 
 export async function getCurrentAdminSession() {
+  if (isStaticQaAdminMode()) {
+    const cookieStore = await cookies();
+    return cookieStore.get(ADMIN_SESSION_COOKIE)?.value === QA_ADMIN_TOKEN ? getQaAdminSession() : null;
+  }
+
   if (isQaAdminBypassEnabled()) {
     return getQaAdminSession();
   }

@@ -1,21 +1,33 @@
 import { NextResponse } from "next/server";
 import { z } from "zod";
 
-import { createAdminSession, verifyPassword } from "@/lib/auth";
+import { createAdminSession, getStaticQaAdminCredentials, isStaticQaAdminMode, verifyPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 
 const loginSchema = z.object({
-  email: z.string().email(),
+  email: z.string().min(1),
   password: z.string().min(1),
 });
 
 export async function POST(request: Request) {
   try {
+    const payload = loginSchema.parse(await request.json());
+
+    if (isStaticQaAdminMode()) {
+      const qaCredentials = getStaticQaAdminCredentials();
+
+      if (payload.email.trim().toLowerCase() !== qaCredentials.email || payload.password !== qaCredentials.password) {
+        return NextResponse.json({ success: false, error: "Credenciales invalidas." }, { status: 401 });
+      }
+
+      await createAdminSession("qa-admin");
+      return NextResponse.json({ success: true, qa: true });
+    }
+
     if (process.env.QA_ADMIN_BYPASS === "true") {
       return NextResponse.json({ success: true, bypass: true });
     }
 
-    const payload = loginSchema.parse(await request.json());
     const admin = await prisma.adminUser.findUnique({
       where: { email: payload.email.trim().toLowerCase() },
     });
