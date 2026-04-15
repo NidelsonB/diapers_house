@@ -92,7 +92,7 @@ export default async function RootLayout({
 
   return (
     <html lang="es" className={`${nunito.variable} h-full antialiased`}>
-      <body className="min-h-full">
+      <body className="min-h-full" suppressHydrationWarning>
         <script
           type="application/ld+json"
           suppressHydrationWarning

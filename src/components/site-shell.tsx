@@ -181,7 +181,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <div className="border-t border-slate-200 px-4 py-4 text-center text-xs text-slate-500">
-          © 2026 {data.settings.businessName}. Cuidado diario con atención cercana para tu familia.
+          © {new Date().getFullYear()} {data.settings.businessName}. Cuidado diario con atención cercana para tu familia.
         </div>
       </footer>
 

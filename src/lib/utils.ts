@@ -64,10 +64,8 @@ export const getProductSizeOptions = (product: Product) => {
 export const normalizeSizePackageInfo = (product: Product): SizePackageInfo[] => {
   const sizeOptions = getProductSizeOptions(product);
   const fallbackUnits = extractPackUnits(product.pack);
-  const provided = [
-    ...(product.sizePackageInfo ?? []),
-    ...((product.sizeInventory ?? []).map((item) => ({ size: item.size, units: item.stock }))),
-  ]
+  // sizeInventory.stock is inventory count, NOT units per pack — only sizePackageInfo carries pack units
+  const provided = (product.sizePackageInfo ?? [])
     .map((item) => ({
       size: item.size.trim(),
       units: Math.max(0, Number(item.units) || 0),

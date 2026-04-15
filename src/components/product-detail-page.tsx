@@ -1,22 +1,33 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, ShoppingCart } from "lucide-react";
+import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
 import { formatCurrency, getProductDisplayName, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
-  const { addToCart, data } = useSiteStore();
+  const { updateCartQuantity, cartItemsDetailed, data } = useSiteStore();
   const product = data.products.find((item) => item.slug === slug);
   const sizeOptions = product ? getProductSizeOptions(product) : [];
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product?.size ?? "");
+  const [quantity, setQuantity] = useState(1);
   const selectedPackUnits = product ? getProductSizeUnits(product, selectedSize) : 0;
   const displayName = product ? getProductDisplayName(product) : "";
   const availabilityLabel = !product ? "" : product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
+
+  const currentCartItem = cartItemsDetailed.find(
+    (item) => item.product.id === product?.id && item.selectedSize === selectedSize,
+  );
+  const currentCartQty = currentCartItem?.quantity ?? 0;
+  const maxAddable = product ? Math.max(0, product.stock - currentCartQty) : 0;
+
+  useEffect(() => {
+    setQuantity(1);
+  }, [selectedSize]);
 
   if (!product) {
     return (
@@ -67,7 +78,7 @@ export function ProductDetailPage({ slug }: { slug: string }) {
 
           {sizeOptions.length > 1 ? (
             <label className="block text-sm font-semibold text-slate-700">
-              Elige la talla de diaper
+              Elige la talla del pañal
               <select
                 value={selectedSize}
                 onChange={(event) => setSelectedSize(event.target.value)}
@@ -92,19 +103,35 @@ export function ProductDetailPage({ slug }: { slug: string }) {
             ) : null}
           </div>
 
-          <div className="rounded-[24px] bg-brand-soft p-4 text-sm text-slate-700">
-            <p className="font-bold text-brand-secondary">Lo que encontrarás en esta ficha:</p>
-            <ul className="mt-2 space-y-1">
-              <li>• Selección de talla antes de agregar al carrito.</li>
-              <li>• Unidades por paquete visibles según la talla elegida.</li>
-              <li>• Compra directa o agregado al carrito con un clic.</li>
-            </ul>
+          <div className="flex items-center gap-3">
+            <span className="text-sm font-semibold text-slate-700">Cantidad</span>
+            <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
+                disabled={quantity <= 1}
+                className="rounded-full p-1 text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Disminuir cantidad"
+              >
+                <Minus size={16} />
+              </button>
+              <span className="min-w-8 text-center text-sm font-bold">{quantity}</span>
+              <button
+                type="button"
+                onClick={() => setQuantity((q) => Math.min(maxAddable, q + 1))}
+                disabled={quantity >= maxAddable}
+                className="rounded-full p-1 text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+                aria-label="Aumentar cantidad"
+              >
+                <Plus size={16} />
+              </button>
+            </div>
           </div>
 
           <button
             type="button"
-            onClick={() => addToCart(product.id, selectedSize)}
-            disabled={product.stock <= 0}
+            onClick={() => updateCartQuantity(product.id, currentCartQty + Math.min(quantity, maxAddable), selectedSize)}
+            disabled={product.stock <= 0 || maxAddable <= 0}
             className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
           >
             <ShoppingCart size={16} />

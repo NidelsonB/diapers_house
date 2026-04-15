@@ -7,6 +7,7 @@ import {
   useContext,
   useEffect,
   useMemo,
+  useRef,
   useState,
 } from "react";
 
@@ -119,18 +120,30 @@ export function SiteStoreProvider({
   initialIsAdminAuthenticated: boolean;
 }) {
   const [data, setData] = useState<SiteData>(() => normalizeSiteData(initialData));
-  const [cart, setCart] = useState<CartItem[]>(() => {
-    if (typeof window === "undefined") return [];
-    const storedCart = window.localStorage.getItem(CART_KEY);
-    return storedCart ? JSON.parse(storedCart) : [];
-  });
+  const [cart, setCart] = useState<CartItem[]>([]);
+  const cartHydrated = useRef(false);
   const isReady = true;
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(initialIsAdminAuthenticated);
 
+  // Write effect declared FIRST so it runs before the read effect on mount.
+  // cartHydrated.current is still false on first run, so it skips the initial write.
   useEffect(() => {
-    if (!isReady || typeof window === "undefined") return;
+    if (!cartHydrated.current) return;
     window.localStorage.setItem(CART_KEY, JSON.stringify(cart));
-  }, [cart, isReady]);
+  }, [cart]);
+
+  // Read effect runs SECOND on mount, restores cart from localStorage, then marks hydrated.
+  useEffect(() => {
+    const storedCart = window.localStorage.getItem(CART_KEY);
+    if (storedCart) {
+      try {
+        setCart(JSON.parse(storedCart) as CartItem[]);
+      } catch {
+        // ignore malformed data
+      }
+    }
+    cartHydrated.current = true;
+  }, []);
 
   const refreshPublicData = useCallback(async () => {
     const response = await fetchJson<{ data: SiteData }>("/api/site", { method: "GET" });
@@ -273,6 +286,12 @@ export function SiteStoreProvider({
 
       if (safeQuantity <= 0) {
         return current.filter((item) => !(item.productId === productId && item.selectedSize === normalizedSize));
+      }
+
+      const exists = current.some((item) => item.productId === productId && item.selectedSize === normalizedSize);
+
+      if (!exists) {
+        return [...current, { productId, quantity: safeQuantity, selectedSize: normalizedSize }];
       }
 
       return current.map((item) =>
