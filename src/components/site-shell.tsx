@@ -19,6 +19,7 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { cartCount, data } = useSiteStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const totalBranches = data.settings.branches.length;
 
   const whatsappUrl = useMemo(
     () =>
@@ -161,6 +162,13 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
 
           <div className="space-y-4">
             <h4 className="text-sm font-extrabold uppercase tracking-[0.25em] text-brand-primary">Sucursales</h4>
+            <p className="text-sm text-slate-600">
+              Te atendemos en {totalBranches} sucursales. Aquí te mostramos algunas de ellas.
+              {" "}
+              <Link href="/contacto" className="font-semibold text-brand-primary hover:underline">
+                Ver todas las sucursales
+              </Link>
+            </p>
             <div className="space-y-3 text-sm text-slate-600">
               {data.settings.branches.slice(0, 3).map((branch) => (
                 <div key={branch.id} className="rounded-2xl bg-slate-50 p-3">
