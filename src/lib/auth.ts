@@ -8,6 +8,24 @@ const scrypt = promisify(scryptCallback);
 
 export const ADMIN_SESSION_COOKIE = "lcdp_admin_session";
 const SESSION_DURATION_MS = 1000 * 60 * 60 * 24 * 7;
+const QA_ADMIN_ID = "qa-admin";
+
+const isQaAdminBypassEnabled = () => process.env.QA_ADMIN_BYPASS === "true";
+
+const getQaAdminSession = () => ({
+  id: "qa-session",
+  tokenHash: "qa-bypass",
+  expiresAt: new Date(Date.now() + SESSION_DURATION_MS),
+  adminUserId: QA_ADMIN_ID,
+  adminUser: {
+    id: QA_ADMIN_ID,
+    email: process.env.ADMIN_EMAIL ?? "admin@lacasadelpanal.com",
+    name: process.env.ADMIN_NAME ?? "Administrador QA",
+    passwordHash: "",
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+});
 
 const normalizeSecret = () => {
   const secret = process.env.SESSION_SECRET;
@@ -44,6 +62,10 @@ export function hashSessionToken(token: string) {
 }
 
 export async function createAdminSession(adminUserId: string) {
+  if (isQaAdminBypassEnabled()) {
+    return;
+  }
+
   const token = randomBytes(32).toString("hex");
   const tokenHash = hashSessionToken(token);
   const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
@@ -67,6 +89,18 @@ export async function createAdminSession(adminUserId: string) {
 }
 
 export async function clearAdminSession() {
+  if (isQaAdminBypassEnabled()) {
+    const cookieStore = await cookies();
+    cookieStore.set(ADMIN_SESSION_COOKIE, "", {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      path: "/",
+      expires: new Date(0),
+    });
+    return;
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
@@ -88,6 +122,10 @@ export async function clearAdminSession() {
 }
 
 export async function getCurrentAdminSession() {
+  if (isQaAdminBypassEnabled()) {
+    return getQaAdminSession();
+  }
+
   const cookieStore = await cookies();
   const token = cookieStore.get(ADMIN_SESSION_COOKIE)?.value;
 
