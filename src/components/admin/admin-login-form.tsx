@@ -44,10 +44,11 @@ export function AdminLoginForm() {
           <label className="block space-y-2 text-sm font-semibold text-slate-700">
             Correo
             <input
-              type="email"
+              type="text"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-primary"
+              autoComplete="username"
             />
           </label>
 
