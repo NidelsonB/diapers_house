@@ -51,6 +51,11 @@ function CatalogContent() {
     currentPage * ITEMS_PER_PAGE,
   );
 
+  const goToPage = (page: number) => {
+    setCurrentPage(page);
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  };
+
   useEffect(() => {
     setCurrentPage(1);
   }, [search, resolvedCategory]);
@@ -132,7 +137,7 @@ function CatalogContent() {
         <div className="mt-8 flex items-center justify-center gap-2">
           <button
             type="button"
-            onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
+            onClick={() => goToPage(Math.max(1, currentPage - 1))}
             disabled={currentPage === 1}
             className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
@@ -142,7 +147,7 @@ function CatalogContent() {
             <button
               key={page}
               type="button"
-              onClick={() => setCurrentPage(page)}
+              onClick={() => goToPage(page)}
               className={`inline-flex h-9 w-9 items-center justify-center rounded-full text-sm font-bold ${
                 page === currentPage
                   ? "bg-brand-primary text-white"
@@ -154,7 +159,7 @@ function CatalogContent() {
           ))}
           <button
             type="button"
-            onClick={() => setCurrentPage((p) => Math.min(totalPages, p + 1))}
+            onClick={() => goToPage(Math.min(totalPages, currentPage + 1))}
             disabled={currentPage === totalPages}
             className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
           >
