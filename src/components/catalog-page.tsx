@@ -13,7 +13,7 @@ function CatalogContent() {
   const searchParams = useSearchParams();
   const [search, setSearch] = useState("");
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
-  const [sortBy, setSortBy] = useState("catalog-order");
+  const [sortBy, setSortBy] = useState("price-desc");
 
   const initialCategorySlug = searchParams.get("categoria") ?? undefined;
   const resolvedCategory =
