@@ -37,7 +37,7 @@ function CatalogContent() {
       return matchesCategory && matchesSearch;
     });
 
-    return [...base].sort((a, b) => b.price - a.price || (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
+    return [...base].sort((a, b) => a.price - b.price || (a.sortOrder ?? 999) - (b.sortOrder ?? 999));
   }, [data.products, resolvedCategory, search]);
 
   const lowestPrice = useMemo(() => {
