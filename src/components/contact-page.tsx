@@ -1,7 +1,6 @@
 ﻿"use client";
 
-import { Mail, MapPin, Phone } from "lucide-react";
-
+import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ContactPage() {
@@ -13,7 +12,7 @@ export function ContactPage() {
         <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Contacto</p>
         <h1 className="text-4xl font-black text-slate-900">Estamos para ayudarte</h1>
         <p className="mt-2 max-w-2xl text-slate-600">
-          Contáctanos por WhatsApp, correo o visita la sucursal que te quede mejor. Estamos listos para orientarte en tu compra.
+          Contáctanos por WhatsApp, correo o visita la sucursal que te quede mejor. Estamos listos para orientarte.
         </p>
 
         <div className="mt-6 grid gap-4 md:grid-cols-3">
@@ -30,7 +29,7 @@ export function ContactPage() {
           <article className="rounded-[24px] bg-slate-50 p-5">
             <div className="mb-3 inline-flex rounded-2xl bg-brand-soft p-3 text-brand-primary"><MapPin size={18} /></div>
             <h2 className="font-bold text-slate-900">Sucursales</h2>
-            <p className="mt-2 text-sm text-slate-600">Elige la sucursal más conveniente para comprar o consultar disponibilidad.</p>
+            <p className="mt-2 text-sm text-slate-600">Elige la sucursal más conveniente para consultar disponibilidad o recibir atención.</p>
           </article>
         </div>
       </div>
@@ -47,6 +46,20 @@ export function ContactPage() {
               <p className="mt-2 text-sm text-slate-600">{branch.address}</p>
               <p className="mt-2 text-sm font-semibold text-brand-primary">{branch.hours}</p>
               <p className="mt-3 text-sm text-slate-600">Teléfonos: {branch.phones.join(", ")}</p>
+              {branch.locationUrl ? (
+                <div className="mt-4">
+                  <a
+                    href={branch.locationUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 transition hover:border-brand-primary hover:text-brand-primary"
+                  >
+                    <MapPin size={16} />
+                    Abrir ubicación
+                    <ExternalLink size={14} />
+                  </a>
+                </div>
+              ) : null}
             </article>
           ))}
         </div>

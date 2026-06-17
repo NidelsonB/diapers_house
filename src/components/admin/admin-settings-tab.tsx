@@ -21,7 +21,7 @@ export function AdminSettingsTab() {
     trustMessages: data.settings.trustMessages.join(", "),
     branchesText: data.settings.branches
       .map((branch) =>
-        [branch.name, branch.address, branch.hours, branch.phones.join(", ")].join(" | "),
+        [branch.name, branch.address, branch.hours, branch.phones.join(", "), branch.locationUrl ?? ""].join(" | "),
       )
       .join("\n"),
   }));
@@ -34,7 +34,7 @@ export function AdminSettingsTab() {
       .map((line) => line.trim())
       .filter(Boolean)
       .map((line, index) => {
-        const [name, address, hours, phones] = line.split("|").map((item) => item.trim());
+        const [name, address, hours, phones, locationUrl] = line.split("|").map((item) => item.trim());
         return {
           id: `branch-${index + 1}`,
           name: name || `Sucursal ${index + 1}`,
@@ -46,6 +46,7 @@ export function AdminSettingsTab() {
                 .map((phone) => phone.trim())
                 .filter(Boolean)
             : [],
+          locationUrl: locationUrl || undefined,
         };
       });
 
@@ -166,10 +167,13 @@ export function AdminSettingsTab() {
           value={settingsForm.branchesText}
           onChange={(event) => setSettingsForm((current) => ({ ...current, branchesText: event.target.value }))}
           rows={6}
-          placeholder="Una sucursal por línea: Nombre | Dirección | Horario | Tel1, Tel2"
-          className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary md:col-span-2"
-        />
-      </div>
+        placeholder="Una sucursal por línea: Nombre | Dirección | Horario | Tel1, Tel2 | Link directo de ubicación"
+        className="rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm outline-none focus:border-brand-primary md:col-span-2"
+      />
+      <p className="text-sm text-slate-500 md:col-span-2">
+        Pega aquí un enlace directo de Google Maps o Waze, por ejemplo un `maps.app.goo.gl/...` o un link de navegación de Waze.
+      </p>
+    </div>
       <button
         type="submit"
         className="mt-4 inline-flex items-center gap-2 rounded-full bg-brand-primary px-4 py-2.5 text-sm font-bold text-white"

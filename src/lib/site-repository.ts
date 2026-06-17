@@ -75,9 +75,10 @@ const asBranches = (value: Prisma.JsonValue | null | undefined): Branch[] => {
     const phones = Array.isArray(item.phones)
       ? item.phones.filter((phone): phone is string => typeof phone === "string")
       : [];
+    const locationUrl = typeof item.locationUrl === "string" && item.locationUrl.trim() ? item.locationUrl.trim() : undefined;
 
     if (!id || !name) return [];
-    return [{ id, name, address, hours, phones }];
+    return [{ id, name, address, hours, phones, locationUrl }];
   });
 };
 
@@ -115,6 +116,7 @@ const normalizePublicBranch = (branch: Branch, fallback: Branch): Branch => {
     address: looksPlaceholder ? fallback.address : branch.address,
     hours: branch.hours.trim() ? branch.hours : fallback.hours,
     phones: branch.phones.length > 0 ? branch.phones : fallback.phones,
+    locationUrl: branch.locationUrl?.trim() ? branch.locationUrl : fallback.locationUrl,
   };
 };
 

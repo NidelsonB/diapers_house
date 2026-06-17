@@ -21,6 +21,12 @@ export const buildWhatsAppLink = (phone: string, message: string) => {
   return `https://wa.me/503${normalizedPhone}?text=${encodeURIComponent(message)}`;
 };
 
+export const buildGoogleMapsLink = (address: string) =>
+  `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(address)}`;
+
+export const buildWazeLink = (address: string) =>
+  `https://waze.com/ul?q=${encodeURIComponent(address)}&navigate=yes`;
+
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const withBasePath = (path: string) => {

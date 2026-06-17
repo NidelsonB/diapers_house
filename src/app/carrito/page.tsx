@@ -1,5 +1,5 @@
-import { CartPage } from "@/components/cart-page";
+import { redirect } from "next/navigation";
 
 export default function CarritoRoute() {
-  return <CartPage />;
+  redirect("/contacto");
 }

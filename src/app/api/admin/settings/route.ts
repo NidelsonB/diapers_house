@@ -10,6 +10,12 @@ const branchSchema = z.object({
   address: z.string(),
   hours: z.string(),
   phones: z.array(z.string()),
+  locationUrl: z
+    .preprocess(
+      (value) => (typeof value === "string" && value.trim() ? value.trim() : undefined),
+      z.string().url().optional(),
+    )
+    .optional(),
 });
 
 const settingsSchema = z.object({

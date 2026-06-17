@@ -11,7 +11,7 @@ import { useSiteStore } from "@/providers/site-store";
 const faqs = [
   {
     question: "¿Puedo pedir por WhatsApp además de la web?",
-    answer: "Sí. Puedes comprar desde la web o escribirnos por WhatsApp si prefieres atención personalizada.",
+    answer: "Sí. Puedes escribirnos por WhatsApp si prefieres atención personalizada.",
   },
   {
     question: "¿Cómo sé qué talla elegir?",
@@ -30,16 +30,16 @@ export function HomePage() {
 
   return (
     <div className="pb-16">
-      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.1fr_0.9fr] md:px-6 md:py-14">
+      <section className="mx-auto grid max-w-7xl gap-8 px-4 py-10 md:grid-cols-[1.12fr_0.88fr] md:px-6 md:py-14">
         <div className="space-y-6">
-          <div className="inline-flex rounded-full bg-brand-soft px-4 py-2 text-xs font-bold uppercase tracking-[0.28em] text-brand-primary">
+          <div className="inline-flex rounded-full bg-brand-soft px-4 py-2 text-xs font-bold tracking-[0.08em] text-brand-primary">
             Compra fácil y segura
           </div>
           <div className="space-y-4">
-            <h1 className="max-w-2xl text-4xl font-black tracking-tight text-slate-900 md:text-6xl">
+            <h1 className="max-w-2xl text-balance text-4xl font-black tracking-[-0.02em] text-slate-900 md:text-6xl">
               {data.settings.heroBanner.title}
             </h1>
-            <p className="max-w-2xl text-lg text-slate-600">{data.settings.heroBanner.subtitle} Compra en línea desde El Salvador con atención rápida y cercana.</p>
+            <p className="max-w-[65ch] text-pretty text-lg text-slate-700">{data.settings.heroBanner.subtitle} Consulta productos en línea y recibe atención rápida y cercana.</p>
             <p className="inline-flex rounded-full bg-brand-accent px-4 py-2 text-sm font-bold text-brand-secondary">
               {data.settings.heroBanner.highlight}
             </p>
@@ -73,8 +73,8 @@ export function HomePage() {
           </div>
         </div>
 
-        <div className="relative overflow-hidden rounded-[32px] bg-[linear-gradient(135deg,#442e75_0%,#29326d_55%,#fdf90f_120%)] p-4 shadow-xl">
-          <div className="rounded-[24px] bg-[radial-gradient(circle_at_top,#ffffff_0%,rgba(255,255,255,0.82)_38%,rgba(253,249,15,0.18)_100%)] p-5">
+        <div className="relative overflow-hidden rounded-2xl bg-[linear-gradient(135deg,#442e75_0%,#29326d_55%,#fdf90f_120%)] p-4 shadow-lg">
+          <div className="rounded-xl bg-[radial-gradient(circle_at_top,#ffffff_0%,rgba(255,255,255,0.85)_40%,rgba(253,249,15,0.18)_100%)] p-5">
             <Image
               src={withBasePath("/brand/panalin-transparent.png")}
               alt="Mascota oficial Pañalín de La Casa del Pañal"
@@ -90,7 +90,7 @@ export function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-12 md:px-6">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Categorías</p>
+            <p className="text-sm font-bold tracking-[0.06em] text-brand-primary">Categorías</p>
             <h2 className="text-3xl font-black text-slate-900">Explora por necesidad</h2>
           </div>
           <Link href="/catalogo" className="text-sm font-bold text-brand-primary">
@@ -102,7 +102,7 @@ export function HomePage() {
             <Link
               key={category.id}
               href={`/catalogo?categoria=${category.slug}`}
-              className="rounded-[28px] bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-lg"
+              className="rounded-xl bg-white p-5 shadow-sm ring-1 ring-slate-200 transition hover:-translate-y-0.5 hover:shadow-md"
             >
               <div className="text-3xl">{category.icon}</div>
               <h3 className="mt-4 text-lg font-bold text-slate-900">{category.name}</h3>
@@ -115,7 +115,7 @@ export function HomePage() {
       <section className="mx-auto max-w-7xl px-4 py-6 md:px-6">
         <div className="mb-6 flex items-end justify-between gap-4">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Destacados</p>
+            <p className="text-sm font-bold tracking-[0.06em] text-brand-primary">Destacados</p>
             <h2 className="text-3xl font-black text-slate-900">Productos favoritos</h2>
           </div>
           <Link href="/catalogo" className="text-sm font-bold text-brand-primary">
@@ -130,13 +130,13 @@ export function HomePage() {
       </section>
 
       <section className="mx-auto max-w-7xl px-4 py-12 md:px-6">
-        <div className="rounded-[32px] bg-brand-secondary p-6 text-white md:p-8">
+          <div className="rounded-2xl bg-brand-secondary p-6 text-white md:p-8">
           <div className="mb-6 flex flex-col gap-3 md:flex-row md:items-end md:justify-between">
             <div>
-              <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-accent">Ofertas</p>
-              <h2 className="text-3xl font-black">Compra inteligente para el hogar</h2>
+              <p className="text-sm font-bold tracking-[0.06em] text-brand-accent">Ofertas</p>
+              <h2 className="text-3xl font-black">Consulta rápida para el hogar</h2>
             </div>
-            <p className="max-w-xl text-sm text-slate-200">
+            <p className="max-w-xl text-sm text-slate-100">
               Promociones, presentaciones rendidoras y opciones para bebé, adulto y cuidado diario en un solo lugar.
             </p>
           </div>
@@ -149,21 +149,21 @@ export function HomePage() {
       </section>
 
       <section className="mx-auto grid max-w-7xl gap-6 px-4 py-12 md:grid-cols-2 md:px-6">
-        <article className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Sobre nosotros</p>
+        <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+          <p className="text-sm font-bold tracking-[0.06em] text-brand-primary">Sobre nosotros</p>
           <h2 className="mt-3 text-3xl font-black text-slate-900">Cuidado diario con atención cercana</h2>
-          <p className="mt-4 text-slate-600">
+          <p className="mt-4 max-w-[65ch] text-pretty text-slate-700">
             En La Casa del Pañal encuentras pañales, toallitas, protectores y productos de cuidado diario para bebé, adulto y hogar, con atención rápida para clientes en El Salvador y acompañamiento cuando lo necesites.
           </p>
           <ul className="mt-5 space-y-3 text-sm text-slate-700">
-            <li>• Compra desde cualquier dispositivo, de forma simple y segura.</li>
+            <li>• Revisa el catálogo desde cualquier dispositivo, de forma simple y clara.</li>
             <li>• Catálogo organizado por categorías para encontrar rápido lo que buscas.</li>
-            <li>• Atención por WhatsApp para resolver dudas antes de comprar.</li>
+            <li>• Atención por WhatsApp para resolver dudas antes de decidir tu compra.</li>
           </ul>
         </article>
 
-        <article className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
-          <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Preguntas frecuentes</p>
+        <article className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+          <p className="text-sm font-bold tracking-[0.06em] text-brand-primary">Preguntas frecuentes</p>
           <div className="mt-4 space-y-4">
             {faqs.map((faq) => (
               <div key={faq.question} className="rounded-2xl bg-slate-50 p-4">

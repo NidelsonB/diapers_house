@@ -1,12 +1,15 @@
 @import "tailwindcss";
 
 :root {
-  --background: #f8fafc;
-  --foreground: #0f172a;
-  --brand-primary: #442e75;
-  --brand-secondary: #29326d;
-  --brand-accent: #fdf90f;
-  --brand-soft: #f6f0ff;
+  --background: oklch(0.985 0.004 286);
+  --foreground: oklch(0.235 0.02 275);
+  --brand-primary: oklch(0.43 0.165 286);
+  --brand-secondary: oklch(0.33 0.12 276);
+  --brand-accent: oklch(0.93 0.18 102);
+  --brand-soft: oklch(0.965 0.03 286);
+  --surface: oklch(0.995 0 0);
+  --surface-muted: oklch(0.975 0.006 286);
+  --muted-ink: oklch(0.45 0.02 278);
 }
 
 @theme inline {
@@ -28,9 +31,7 @@ html {
 }
 
 body {
-  background:
-    radial-gradient(circle at top left, rgba(253, 249, 15, 0.18), transparent 0, transparent 32%),
-    var(--background);
+  background: radial-gradient(circle at top left, color-mix(in oklch, var(--brand-accent) 30%, transparent), transparent 35%), var(--background);
   color: var(--foreground);
   font-family: var(--font-nunito), Arial, Helvetica, sans-serif;
 }
@@ -42,4 +43,18 @@ body {
 
 a {
   text-decoration: none;
+}
+
+:focus-visible {
+  outline: 3px solid color-mix(in oklch, var(--brand-accent) 78%, black);
+  outline-offset: 3px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

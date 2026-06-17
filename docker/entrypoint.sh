@@ -4,7 +4,7 @@ set -e
 if [ -n "${DATABASE_URL}" ]; then
   echo "Waiting for MySQL to be ready..."
   i=0
-  until mysqladmin ping -h mysql -u"${MYSQL_USER:-diapers_user}" -p"${MYSQL_PASSWORD}" --silent; do
+  until node -e "const net=require('net'); const s=net.createConnection(3306, 'mysql'); s.on('connect', () => { s.end(); process.exit(0); }); s.on('error', () => process.exit(1)); setTimeout(() => { s.destroy(); process.exit(1); }, 2000);"; do
     i=$((i + 1))
     if [ "$i" -ge 30 ]; then
       echo "MySQL did not become ready in time."

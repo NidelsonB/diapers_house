@@ -1,33 +1,22 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { ArrowLeft, Minus, Plus, ShoppingCart } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 import { ProductCard } from "@/components/product-card";
 import { formatCurrency, getProductDisplayName, getProductSizeOptions, getProductSizeUnits, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ProductDetailPage({ slug }: { slug: string }) {
-  const { updateCartQuantity, cartItemsDetailed, data } = useSiteStore();
+  const { data } = useSiteStore();
   const product = data.products.find((item) => item.slug === slug);
   const sizeOptions = product ? getProductSizeOptions(product) : [];
   const [selectedSize, setSelectedSize] = useState(sizeOptions[0] ?? product?.size ?? "");
-  const [quantity, setQuantity] = useState(1);
   const selectedPackUnits = product ? getProductSizeUnits(product, selectedSize) : 0;
   const displayName = product ? getProductDisplayName(product) : "";
   const availabilityLabel = !product ? "" : product.stock > 8 ? "Disponible" : product.stock > 0 ? "Últimas unidades" : "Agotado";
-
-  const currentCartItem = cartItemsDetailed.find(
-    (item) => item.product.id === product?.id && item.selectedSize === selectedSize,
-  );
-  const currentCartQty = currentCartItem?.quantity ?? 0;
-  const maxAddable = product ? Math.max(0, product.stock - currentCartQty) : 0;
-
-  useEffect(() => {
-    setQuantity(1);
-  }, [selectedSize]);
 
   if (!product) {
     return (
@@ -102,41 +91,24 @@ export function ProductDetailPage({ slug }: { slug: string }) {
               <p className="text-sm text-slate-400 line-through">Antes {formatCurrency(product.originalPrice)}</p>
             ) : null}
           </div>
+          <p className="rounded-2xl bg-slate-50 px-4 py-3 text-sm text-slate-700">
+            Esta ficha es informativa. Si quieres disponibilidad o apoyo para elegir talla, escríbenos por WhatsApp o visita la sucursal más cercana.
+          </p>
 
-          <div className="flex items-center gap-3">
-            <span className="text-sm font-semibold text-slate-700">Cantidad</span>
-            <div className="flex items-center gap-2 rounded-full bg-slate-100 px-2 py-1">
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.max(1, q - 1))}
-                disabled={quantity <= 1}
-                className="rounded-full p-1 text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Disminuir cantidad"
-              >
-                <Minus size={16} />
-              </button>
-              <span className="min-w-8 text-center text-sm font-bold">{quantity}</span>
-              <button
-                type="button"
-                onClick={() => setQuantity((q) => Math.min(maxAddable, q + 1))}
-                disabled={quantity >= maxAddable}
-                className="rounded-full p-1 text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
-                aria-label="Aumentar cantidad"
-              >
-                <Plus size={16} />
-              </button>
-            </div>
+          <div className="flex flex-wrap gap-3">
+            <Link
+              href="/contacto"
+              className="inline-flex items-center gap-2 rounded-full bg-brand-primary px-5 py-3 text-sm font-bold text-white transition hover:brightness-110"
+            >
+              Ver contacto
+            </Link>
+            <Link
+              href="/catalogo"
+              className="inline-flex items-center gap-2 rounded-full border border-slate-200 px-5 py-3 text-sm font-bold text-slate-700"
+            >
+              Seguir explorando
+            </Link>
           </div>
-
-          <button
-            type="button"
-            onClick={() => updateCartQuantity(product.id, currentCartQty + Math.min(quantity, maxAddable), selectedSize)}
-            disabled={product.stock <= 0 || maxAddable <= 0}
-            className="inline-flex items-center gap-2 rounded-full bg-brand-accent px-5 py-3 text-sm font-bold text-brand-secondary transition hover:brightness-95 disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            <ShoppingCart size={16} />
-            Agregar al carrito
-          </button>
         </div>
       </div>
 

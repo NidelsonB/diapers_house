@@ -1,16 +1,15 @@
 import type { Metadata } from "next";
-
-import { CheckoutPage } from "@/components/checkout-page";
+import { redirect } from "next/navigation";
 
 export const metadata: Metadata = {
-  title: "Finaliza tu compra | La Casa del Pañal El Salvador",
+  title: "Contacto | La Casa del Pañal El Salvador",
   description:
-    "Completa tu pedido de pañales, toallitas y productos de cuidado diario con atención rápida en El Salvador.",
+    "Consulta nuestras sucursales, teléfonos y medios de contacto para recibir ayuda con tu compra en tienda.",
   alternates: {
-    canonical: "/checkout",
+    canonical: "/contacto",
   },
 };
 
 export default function CheckoutRoute() {
-  return <CheckoutPage />;
+  redirect("/contacto");
 }

@@ -68,6 +68,7 @@ export interface Branch {
   address: string;
   hours: string;
   phones: string[];
+  locationUrl?: string;
 }
 
 export interface HeroBanner {

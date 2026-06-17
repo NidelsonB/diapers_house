@@ -135,14 +135,20 @@ export function SiteStoreProvider({
   // Read effect runs SECOND on mount, restores cart from localStorage, then marks hydrated.
   useEffect(() => {
     const storedCart = window.localStorage.getItem(CART_KEY);
+    let frame = 0;
     if (storedCart) {
       try {
-        setCart(JSON.parse(storedCart) as CartItem[]);
+        const parsedCart = JSON.parse(storedCart) as CartItem[];
+        frame = window.requestAnimationFrame(() => setCart(parsedCart));
       } catch {
         // ignore malformed data
       }
     }
     cartHydrated.current = true;
+
+    return () => {
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, []);
 
   const refreshPublicData = useCallback(async () => {

@@ -1,6 +1,6 @@
 "use client";
 
-import { Suspense, useEffect, useMemo, useState } from "react";
+import { Suspense, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { ChevronLeft, ChevronRight, Search } from "lucide-react";
 
@@ -56,19 +56,15 @@ function CatalogContent() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  useEffect(() => {
-    setCurrentPage(1);
-  }, [search, resolvedCategory]);
-
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
-      <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div>
-            <p className="text-sm font-bold uppercase tracking-[0.3em] text-brand-primary">Catálogo</p>
-            <h1 className="text-4xl font-black text-slate-900">Encuentra la mejor opción para cada etapa</h1>
-            <p className="mt-2 max-w-2xl text-slate-600">
-              Filtra por categoría, busca por marca o compara precios. El catálogo fue pensado para navegar fácil y comprar rápido.
+            <p className="text-sm font-bold tracking-[0.06em] text-brand-primary">Catálogo</p>
+            <h1 className="text-balance text-4xl font-black tracking-[-0.02em] text-slate-900">Encuentra la mejor opción para cada etapa</h1>
+            <p className="mt-2 max-w-[65ch] text-pretty text-slate-700">
+              Filtra por categoría, busca por marca o compara precios. El catálogo fue pensado para navegar fácil y consultar rápido.
             </p>
           </div>
           <div className="rounded-2xl bg-brand-soft px-4 py-3 text-sm font-semibold text-brand-secondary">
@@ -82,9 +78,12 @@ function CatalogContent() {
             <Search className="absolute left-4 top-3.5 text-slate-400" size={18} />
             <input
               value={search}
-              onChange={(event) => setSearch(event.target.value)}
+              onChange={(event) => {
+                setSearch(event.target.value);
+                setCurrentPage(1);
+              }}
               placeholder="Buscar por marca, talla o producto"
-              className="w-full rounded-2xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-primary"
+              className="w-full rounded-xl border border-slate-200 bg-slate-50 py-3 pl-11 pr-4 text-sm outline-none transition focus:border-brand-primary"
             />
           </label>
 
@@ -94,7 +93,10 @@ function CatalogContent() {
         <div className="mt-4 flex flex-wrap gap-2">
           <button
             type="button"
-            onClick={() => setSelectedCategory("all")}
+            onClick={() => {
+              setSelectedCategory("all");
+              setCurrentPage(1);
+            }}
             className={`rounded-full px-4 py-2 text-sm font-semibold ${
               resolvedCategory === "all"
                 ? "bg-brand-primary text-white"
@@ -107,7 +109,10 @@ function CatalogContent() {
             <button
               key={category.id}
               type="button"
-              onClick={() => setSelectedCategory(category.id)}
+              onClick={() => {
+                setSelectedCategory(category.id);
+                setCurrentPage(1);
+              }}
               className={`rounded-full px-4 py-2 text-sm font-semibold ${
                 resolvedCategory === category.id
                   ? "bg-brand-primary text-white"
@@ -169,7 +174,7 @@ function CatalogContent() {
       ) : null}
 
       {filteredProducts.length === 0 ? (
-        <div className="mt-8 rounded-[28px] bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
+        <div className="mt-8 rounded-xl bg-white p-8 text-center shadow-sm ring-1 ring-slate-200">
           <h2 className="text-xl font-bold text-slate-900">No encontramos coincidencias</h2>
           <p className="mt-2 text-sm text-slate-600">
             Prueba otra palabra o selecciona una categoría diferente.
@@ -184,16 +189,16 @@ function CatalogSkeleton() {
   return (
     <div className="mx-auto max-w-7xl px-4 py-10 md:px-6">
       {/* header */}
-      <div className="rounded-[32px] bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
+      <div className="rounded-2xl bg-white p-6 shadow-sm ring-1 ring-slate-200 md:p-8">
         <div className="flex flex-col gap-4 md:flex-row md:items-end md:justify-between">
           <div className="space-y-3">
             <div className="h-3 w-24 animate-pulse rounded-full bg-slate-200" />
             <div className="h-8 w-80 animate-pulse rounded-full bg-slate-200" />
             <div className="h-4 w-64 animate-pulse rounded-full bg-slate-200" />
           </div>
-          <div className="h-10 w-44 animate-pulse rounded-2xl bg-slate-200" />
+          <div className="h-10 w-44 animate-pulse rounded-xl bg-slate-200" />
         </div>
-        <div className="mt-6 h-11 animate-pulse rounded-2xl bg-slate-200" />
+        <div className="mt-6 h-11 animate-pulse rounded-xl bg-slate-200" />
         <div className="mt-4 flex flex-wrap gap-2">
           {Array.from({ length: 5 }).map((_, i) => (
             <div key={i} className="h-9 w-24 animate-pulse rounded-full bg-slate-200" />
@@ -207,7 +212,7 @@ function CatalogSkeleton() {
       {/* product grid */}
       <div className="mt-6 grid gap-5 md:grid-cols-2 xl:grid-cols-4">
         {Array.from({ length: 8 }).map((_, i) => (
-          <div key={i} className="overflow-hidden rounded-[28px] bg-white shadow-sm ring-1 ring-slate-200">
+          <div key={i} className="overflow-hidden rounded-xl bg-white shadow-sm ring-1 ring-slate-200">
             <div className="h-44 animate-pulse bg-slate-100" />
             <div className="space-y-3 p-4">
               <div className="h-3 w-20 animate-pulse rounded-full bg-slate-200" />
