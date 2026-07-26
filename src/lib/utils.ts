@@ -1,4 +1,4 @@
-import { OrderStatus, Product, SizePackageInfo } from "@/types/site";
+import type { OrderStatus, Product, SizePackageInfo } from "@/types/site";
 
 export const formatCurrency = (value: number) =>
   new Intl.NumberFormat("es-SV", {
@@ -28,6 +28,36 @@ export const buildWazeLink = (address: string) =>
   `https://waze.com/ul?q=${encodeURIComponent(address)}&navigate=yes`;
 
 const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+const MAX_INLINE_IMAGE_LENGTH = 8000;
+
+const productImageFallbackByCategory: Record<string, string> = {
+  "cat-baby": "/products/baby-catalog.svg",
+  "cat-adult": "/products/adult-care.svg",
+  "cat-adult-pants": "/products/adult-pants.svg",
+  "cat-care": "/products/bed-protector.svg",
+  "cat-wipes-paper": "/products/wipes-pure.svg",
+  "cat-feminine": "/products/sanitary-pads.svg",
+};
+
+export const getProductImageFallback = (categoryId?: string) =>
+  categoryId ? productImageFallbackByCategory[categoryId] ?? "/products/baby-catalog.svg" : "/products/baby-catalog.svg";
+
+export const isProductImageProxyPath = (image: string | null | undefined) =>
+  Boolean(image?.trim().startsWith("/api/product-images/"));
+
+export const sanitizeProductImage = (image: string | null | undefined, categoryId?: string, productId?: string) => {
+  const value = image?.trim() ?? "";
+
+  if (!value || value.startsWith("data:") || value.length > MAX_INLINE_IMAGE_LENGTH) {
+    if (productId && value.startsWith("data:")) {
+      return `/api/product-images/${encodeURIComponent(productId)}`;
+    }
+
+    return getProductImageFallback(categoryId);
+  }
+
+  return value;
+};
 
 export const withBasePath = (path: string) => {
   if (!path) return path;

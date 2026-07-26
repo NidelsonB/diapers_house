@@ -3,6 +3,7 @@ import { Prisma, PrismaClient } from "@prisma/client";
 import { createSeedData, defaultAdmin, seedCategories, seedOrders, seedProducts, seedSettings } from "@/data/seed";
 import { hashPassword } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { getProductImageFallback, isProductImageProxyPath, sanitizeProductImage } from "@/lib/utils";
 import type {
   Branch,
   BusinessSettings,
@@ -208,11 +209,21 @@ const mapProductRecord = (product: {
   pack: product.pack,
   stock: product.stock,
   categoryId: product.categoryId,
-  image: product.image,
+  image: sanitizeProductImage(product.image, product.categoryId, product.id),
   featured: product.featured,
   isNew: product.isNew,
   onSale: product.onSale,
   tags: asStringArray(product.tags),
+});
+
+const sanitizeProductForResponse = (product: Product): Product => ({
+  ...product,
+  image: sanitizeProductImage(product.image, product.categoryId, product.id),
+});
+
+const sanitizeSiteDataForResponse = (siteData: SiteData): SiteData => ({
+  ...siteData,
+  products: siteData.products.map(sanitizeProductForResponse),
 });
 
 const mapOrderRecord = (order: {
@@ -392,7 +403,7 @@ export async function getSettings() {
 export async function getPublicSiteData(): Promise<SiteData> {
   if (!isDatabaseConfigured) {
     const seed = createSeedData();
-    return { ...seed, orders: [] };
+    return sanitizeSiteDataForResponse({ ...seed, orders: [] });
   }
 
   const [categories, products, settings] = await Promise.all([
@@ -401,17 +412,17 @@ export async function getPublicSiteData(): Promise<SiteData> {
     getSettings(),
   ]);
 
-  return {
+  return sanitizeSiteDataForResponse({
     categories: categories.map(mapCategoryRecord),
     products: products.map(mapProductRecord),
     orders: [],
     settings,
-  };
+  });
 }
 
 export async function getAdminSiteData(): Promise<SiteData> {
   if (!isDatabaseConfigured) {
-    return createSeedData();
+    return sanitizeSiteDataForResponse(createSeedData());
   }
 
   const [categories, products, orders, settings] = await Promise.all([
@@ -421,12 +432,12 @@ export async function getAdminSiteData(): Promise<SiteData> {
     getSettings(),
   ]);
 
-  return {
+  return sanitizeSiteDataForResponse({
     categories: categories.map(mapCategoryRecord),
     products: products.map(mapProductRecord),
     orders: orders.map(mapOrderRecord),
     settings,
-  };
+  });
 }
 
 interface CreateOrderInput {
@@ -510,6 +521,14 @@ export async function createOrder(input: CreateOrderInput) {
 }
 
 export async function upsertProduct(product: Product) {
+  const currentProduct = product.id
+    ? await prisma.product.findUnique({ where: { id: product.id }, select: { image: true } })
+    : null;
+  const image =
+    isProductImageProxyPath(product.image)
+      ? currentProduct?.image ?? getProductImageFallback(product.categoryId)
+      : sanitizeProductImage(product.image, product.categoryId);
+
   const payload = {
     id: product.id || `prod-${Date.now()}`,
     slug: product.slug,
@@ -525,7 +544,7 @@ export async function upsertProduct(product: Product) {
     pack: product.pack,
     stock: product.stock,
     categoryId: product.categoryId,
-    image: product.image,
+    image,
     featured: Boolean(product.featured),
     isNew: Boolean(product.isNew),
     onSale: Boolean(product.onSale),

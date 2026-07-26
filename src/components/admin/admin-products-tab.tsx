@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
 import { Plus, Save, Search, Trash2, X } from "lucide-react";
 
-import { formatCurrency, slugify, withBasePath } from "@/lib/utils";
+import { formatCurrency, sanitizeProductImage, slugify, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 import { Product } from "@/types/site";
 
@@ -238,7 +238,7 @@ export function AdminProductsTab() {
         pack: fallbackPack,
         stock: computedStock,
         categoryId: productForm.categoryId,
-        image: productForm.image,
+        image: sanitizeProductImage(productForm.image, productForm.categoryId),
         featured: productForm.featured,
         isNew: productForm.isNew,
         onSale: productForm.onSale,
@@ -256,31 +256,6 @@ export function AdminProductsTab() {
         text: error instanceof Error ? error.message : "No fue posible guardar el producto.",
       });
     }
-  };
-
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0];
-    event.target.value = "";
-    if (!file) return;
-
-    if (file.size > 2 * 1024 * 1024) {
-      setNotice({ type: "error", text: "La imagen supera 2 MB. Usa una más liviana para la demo." });
-      return;
-    }
-
-    const reader = new FileReader();
-    reader.onload = () => {
-      if (typeof reader.result !== "string") {
-        setNotice({ type: "error", text: "No se pudo procesar la imagen seleccionada." });
-        return;
-      }
-      setProductForm((current) => ({ ...current, image: reader.result as string }));
-      setNotice({ type: "success", text: `Imagen cargada: ${file.name}` });
-    };
-    reader.onerror = () => {
-      setNotice({ type: "error", text: "Ocurrió un error al leer el archivo." });
-    };
-    reader.readAsDataURL(file);
   };
 
   return (
@@ -592,18 +567,14 @@ export function AdminProductsTab() {
                 <aside className="space-y-5">
                   <div className="rounded-2xl border border-dashed border-slate-300 bg-slate-50 p-4">
                     <p className="text-sm font-bold text-slate-900">Imagen del producto</p>
-                    <p className="mt-1 text-xs text-slate-500">Pega una ruta/URL o sube la imagen desde tu computadora.</p>
+                    <p className="mt-1 text-xs text-slate-500">
+                      Usa una ruta de /products o una URL pública. No guardamos imágenes en base64 para mantener el admin rápido.
+                    </p>
                     <input
                       value={productForm.image}
                       onChange={(event) => setProductForm((current) => ({ ...current, image: event.target.value }))}
                       placeholder="Ruta o URL de imagen"
                       className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm outline-none focus:border-brand-primary"
-                    />
-                    <input
-                      type="file"
-                      accept="image/png,image/jpeg,image/webp,image/svg+xml"
-                      onChange={handleImageUpload}
-                      className="mt-3 w-full rounded-2xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-600 file:mr-3 file:rounded-full file:border-0 file:bg-brand-primary file:px-3 file:py-2 file:font-bold file:text-white"
                     />
                     {productForm.image ? (
                       <div className="mt-3 rounded-2xl border border-slate-200 bg-white p-3">

@@ -4,15 +4,26 @@ import { z } from "zod";
 import { getCurrentAdminSession } from "@/lib/auth";
 import { updateSettings } from "@/lib/site-repository";
 
+const normalizeUrl = (value: unknown) => {
+  if (typeof value !== "string") return undefined;
+  const trimmed = value.trim();
+  if (!trimmed) return undefined;
+  if (/^[a-z][a-z\d+.-]*:\/\//i.test(trimmed)) return trimmed;
+  if (/^(maps\.app\.goo\.gl|goo\.gl\/maps|waze\.com|www\.waze\.com|google\.com\/maps|www\.google\.com\/maps)/i.test(trimmed)) {
+    return `https://${trimmed}`;
+  }
+  return trimmed;
+};
+
 const branchSchema = z.object({
   id: z.string(),
-  name: z.string(),
-  address: z.string(),
-  hours: z.string(),
-  phones: z.array(z.string()),
+  name: z.string().trim(),
+  address: z.string().trim(),
+  hours: z.string().trim(),
+  phones: z.array(z.string().trim()).default([]),
   locationUrl: z
     .preprocess(
-      (value) => (typeof value === "string" && value.trim() ? value.trim() : undefined),
+      normalizeUrl,
       z.string().url().optional(),
     )
     .optional(),
@@ -48,10 +59,13 @@ export async function PUT(request: Request) {
     return NextResponse.json({ data });
   } catch (error) {
     if (error instanceof z.ZodError) {
-      return NextResponse.json({ error: "Configuracion invalida." }, { status: 400 });
+      return NextResponse.json(
+        { error: "Configuración inválida. Revisa el correo, los enlaces y los campos de sucursales." },
+        { status: 400 },
+      );
     }
 
     console.error(error);
-    return NextResponse.json({ error: "No fue posible actualizar la configuracion." }, { status: 500 });
+    return NextResponse.json({ error: "No fue posible actualizar la configuración." }, { status: 500 });
   }
 }

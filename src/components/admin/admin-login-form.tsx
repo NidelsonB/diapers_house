@@ -4,11 +4,8 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 
-import { useSiteStore } from "@/providers/site-store";
-
 export function AdminLoginForm() {
   const router = useRouter();
-  const { adminLogin } = useSiteStore();
   const [email, setEmail] = useState("admin");
   const [password, setPassword] = useState("admin");
   const [error, setError] = useState("");
@@ -17,16 +14,30 @@ export function AdminLoginForm() {
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setIsSubmitting(true);
-    const ok = await adminLogin(email, password);
-    setIsSubmitting(false);
 
-    if (!ok) {
-      setError("Credenciales invalidas. Verifica el usuario administrador configurado en el servidor.");
-      return;
+    try {
+      const response = await fetch("/api/admin/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      const payload = (await response.json()) as { success?: boolean; error?: string };
+      if (!response.ok || !payload.success) {
+        setError(payload.error || "Credenciales invalidas. Verifica el usuario administrador configurado en el servidor.");
+        return;
+      }
+
+      setError("");
+      router.replace("/admin");
+      router.refresh();
+    } catch {
+      setError("No fue posible iniciar sesion. Revisa la conexion o intenta otra vez.");
+    } finally {
+      setIsSubmitting(false);
     }
-
-    setError("");
-    router.push("/admin");
   };
 
   return (

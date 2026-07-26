@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 
 import { seedProducts } from "@/data/seed";
 import { ProductDetailPage } from "@/components/product-detail-page";
+import { sanitizeProductImage, withBasePath } from "@/lib/utils";
 
 export function generateStaticParams() {
   return seedProducts.map((product) => ({ slug: product.slug }));
@@ -19,8 +20,7 @@ export async function generateMetadata({
     return { title: "Producto no encontrado | La Casa del Pañal" };
   }
 
-  const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-  const imageUrl = `${basePath}${product.image}`;
+  const imageUrl = withBasePath(sanitizeProductImage(product.image, product.categoryId));
 
   return {
     title: `${product.name} | La Casa del Pañal`,

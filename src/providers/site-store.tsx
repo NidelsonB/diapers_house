@@ -26,6 +26,7 @@ import {
   Product,
   SiteData,
 } from "@/types/site";
+import { branchDirectory } from "@/data/branch-directory";
 
 const CART_KEY = "lcdp-cart-v7-mysql";
 
@@ -88,6 +89,13 @@ const normalizeProduct = (product: Product): Product => {
 
 const normalizeSiteData = (siteData: SiteData): SiteData => ({
   ...siteData,
+  settings: {
+    ...siteData.settings,
+    branches:
+      siteData.settings.branches.length >= branchDirectory.length
+        ? siteData.settings.branches
+        : branchDirectory,
+  },
   products: siteData.products.map((product) => normalizeProduct(product)),
 });
 
@@ -114,14 +122,17 @@ export function SiteStoreProvider({
   children,
   initialData,
   initialIsAdminAuthenticated,
+  skipPublicBootstrap = false,
 }: {
   children: ReactNode;
   initialData: SiteData;
   initialIsAdminAuthenticated: boolean;
+  skipPublicBootstrap?: boolean;
 }) {
   const [data, setData] = useState<SiteData>(() => normalizeSiteData(initialData));
   const [cart, setCart] = useState<CartItem[]>([]);
   const cartHydrated = useRef(false);
+  const adminDataLoaded = useRef(false);
   const isReady = true;
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(initialIsAdminAuthenticated);
 
@@ -183,19 +194,42 @@ export function SiteStoreProvider({
         const response = await fetchJson<{ authenticated: boolean }>("/api/admin/session", { method: "GET" });
         setIsAdminAuthenticated(response.authenticated);
 
-        if (response.authenticated) {
-          await refreshAdminData();
+        if (skipPublicBootstrap) {
           return;
         }
 
         await refreshPublicData();
       } catch {
         setIsAdminAuthenticated(false);
+
+        if (skipPublicBootstrap) {
+          return;
+        }
+
+        await refreshPublicData();
       }
     };
 
     void syncSession();
-  }, [isReady, refreshAdminData, refreshPublicData]);
+  }, [isReady, refreshPublicData, skipPublicBootstrap]);
+
+  useEffect(() => {
+    if (!isAdminAuthenticated) {
+      adminDataLoaded.current = false;
+      return;
+    }
+
+    if (adminDataLoaded.current) {
+      return;
+    }
+
+    adminDataLoaded.current = true;
+    queueMicrotask(() => {
+      void refreshAdminData().catch(() => {
+        adminDataLoaded.current = false;
+      });
+    });
+  }, [isAdminAuthenticated, refreshAdminData]);
 
   const cartItemsDetailed = useMemo(
     () =>
@@ -356,12 +390,13 @@ export function SiteStoreProvider({
         body: JSON.stringify({ email, password }),
       });
 
-      return await refreshAdminData();
+      setIsAdminAuthenticated(true);
+      return true;
     } catch {
       setIsAdminAuthenticated(false);
       return false;
     }
-  }, [refreshAdminData]);
+  }, []);
 
   const adminLogout = useCallback(async () => {
     await fetchJson<{ success: boolean }>("/api/admin/logout", { method: "POST" });

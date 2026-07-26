@@ -1,15 +1,11 @@
 import type { Metadata } from "next";
-import { Nunito_Sans } from "next/font/google";
 
-import "./globals.css";
+import { SiteShell } from "@/components/site-shell";
+import { getPublicSiteData } from "@/lib/site-repository";
+import { SiteStoreProvider } from "@/providers/site-store";
 
-const nunito = Nunito_Sans({
-  variable: "--font-nunito",
-  subsets: ["latin"],
-});
-
-const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ?? "https://lacasadelpanal.com";
+const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
 
 export const metadata: Metadata = {
   title: "La Casa del Pañal | Pañales y cuidado diario en El Salvador",
@@ -24,9 +20,6 @@ export const metadata: Metadata = {
     "tienda de pañales en El Salvador",
   ],
   metadataBase: new URL(siteUrl),
-  alternates: {
-    canonical: "/",
-  },
   openGraph: {
     title: "La Casa del Pañal | Pañales y cuidado diario en El Salvador",
     description:
@@ -62,16 +55,38 @@ export const metadata: Metadata = {
   },
 };
 
-export default async function RootLayout({
+export default async function SiteLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const initialData = await getPublicSiteData();
+
+  const organizationJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "Store",
+    name: "La Casa del Pañal",
+    description:
+      "Tienda online de pañales para bebé y adulto, toallitas, protectores y cuidado diario en El Salvador.",
+    url: siteUrl,
+    areaServed: "El Salvador",
+    address: {
+      "@type": "PostalAddress",
+      addressCountry: "SV",
+      addressLocality: "San Salvador",
+    },
+    telephone: initialData.settings.whatsappNumbers[0] ?? "",
+    email: initialData.settings.email,
+  };
+
   return (
-    <html lang="es" className={`${nunito.variable} h-full antialiased`}>
-      <body className="min-h-full" suppressHydrationWarning>
-        {children}
-      </body>
-    </html>
+    <SiteStoreProvider initialData={initialData} initialIsAdminAuthenticated={false}>
+      <script
+        type="application/ld+json"
+        suppressHydrationWarning
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
+      />
+      <SiteShell>{children}</SiteShell>
+    </SiteStoreProvider>
   );
 }
