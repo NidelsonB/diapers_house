@@ -1,6 +1,7 @@
 ﻿"use client";
 
 import { ExternalLink, Mail, MapPin, Phone } from "lucide-react";
+import { buildWhatsAppLink } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
 
 export function ContactPage() {
@@ -19,7 +20,21 @@ export function ContactPage() {
           <article className="rounded-[24px] bg-slate-50 p-5">
             <div className="mb-3 inline-flex rounded-2xl bg-brand-soft p-3 text-brand-primary"><Phone size={18} /></div>
             <h2 className="font-bold text-slate-900">WhatsApp</h2>
-            <p className="mt-2 text-sm text-slate-600">{data.settings.whatsappNumbers.join(" · ")}</p>
+            <p className="mt-2 flex flex-wrap gap-x-2 gap-y-1 text-sm text-slate-600">
+              {data.settings.whatsappNumbers.map((number, index) => (
+                <span key={number}>
+                  <a
+                    href={buildWhatsAppLink(number, "Hola, quiero información sobre pañales y productos de cuidado diario.")}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="font-semibold text-brand-primary hover:underline"
+                  >
+                    {number}
+                  </a>
+                  {index < data.settings.whatsappNumbers.length - 1 ? " ·" : ""}
+                </span>
+              ))}
+            </p>
           </article>
           <article className="rounded-[24px] bg-slate-50 p-5">
             <div className="mb-3 inline-flex rounded-2xl bg-brand-soft p-3 text-brand-primary"><Mail size={18} /></div>

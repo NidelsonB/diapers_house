@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from "react";
 import Image from "next/image";
-import { Plus, Save, Search, Trash2, X } from "lucide-react";
+import { ChevronLeft, ChevronRight, Plus, Save, Search, Trash2, X } from "lucide-react";
 
 import { formatCurrency, sanitizeProductImage, slugify, withBasePath } from "@/lib/utils";
 import { useSiteStore } from "@/providers/site-store";
@@ -32,6 +32,7 @@ type SizeValidationResult =
   | { rows: Array<{ size: string; units: number }> };
 
 const initialSizeRows: SizeRow[] = [{ size: "Única", units: "" }];
+const PRODUCTS_PER_PAGE = 10;
 
 const extractPackUnits = (pack: string) => {
   const match = pack.match(/\d+/);
@@ -53,6 +54,7 @@ export function AdminProductsTab() {
     categoryId: data.categories[0]?.id ?? "",
   });
   const [search, setSearch] = useState("");
+  const [currentPage, setCurrentPage] = useState(1);
   const [sizeRows, setSizeRows] = useState<SizeRow[]>(initialSizeRows);
   const [isProductModalOpen, setIsProductModalOpen] = useState(false);
   const [editingProductId, setEditingProductId] = useState<string | null>(null);
@@ -86,6 +88,22 @@ export function AdminProductsTab() {
       return searchableText.includes(normalizedSearch);
     });
   }, [data.products, normalizedSearch]);
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [normalizedSearch]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredProducts.length / PRODUCTS_PER_PAGE));
+  const paginatedProducts = useMemo(
+    () => filteredProducts.slice((currentPage - 1) * PRODUCTS_PER_PAGE, currentPage * PRODUCTS_PER_PAGE),
+    [filteredProducts, currentPage],
+  );
+
+  useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const resetProductForm = useCallback(() => {
     setProductForm({
@@ -324,7 +342,7 @@ export function AdminProductsTab() {
 
         <div className="mt-4 space-y-3">
           {filteredProducts.length > 0 ? (
-            filteredProducts.map((product) => (
+            paginatedProducts.map((product) => (
               <div key={product.id} className="rounded-2xl bg-slate-50 p-4">
                 <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
                   <div className="flex items-start gap-3">
@@ -390,6 +408,30 @@ export function AdminProductsTab() {
             </div>
           )}
         </div>
+
+        {totalPages > 1 ? (
+          <div className="mt-5 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setCurrentPage((page) => Math.max(1, page - 1))}
+              disabled={currentPage === 1}
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            <span className="px-2 text-sm font-semibold text-slate-600">
+              Página {currentPage} de {totalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setCurrentPage((page) => Math.min(totalPages, page + 1))}
+              disabled={currentPage === totalPages}
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       {isProductModalOpen ? (

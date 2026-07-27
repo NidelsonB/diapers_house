@@ -1,7 +1,21 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import { AlertCircle, ArrowDown, ArrowUp, CheckCircle2, Copy, Loader2, Plus, Save, Settings2, Trash2, X } from "lucide-react";
+import {
+  AlertCircle,
+  ArrowDown,
+  ArrowUp,
+  CheckCircle2,
+  ChevronLeft,
+  ChevronRight,
+  Copy,
+  Loader2,
+  Plus,
+  Save,
+  Settings2,
+  Trash2,
+  X,
+} from "lucide-react";
 
 import { useSiteStore } from "@/providers/site-store";
 
@@ -17,6 +31,7 @@ type BranchDraft = {
 type Notice = { type: "success" | "error"; text: string };
 type SubmitStatus = "idle" | "saving" | "success" | "error";
 
+const BRANCHES_PER_PAGE = 4;
 const createBranchId = () => `branch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 const splitListInput = (value: string) =>
   value
@@ -85,6 +100,23 @@ export function AdminSettingsTab() {
   const branchCount = useMemo(() => branches.length, [branches.length]);
   const isSaving = submitStatus === "saving";
 
+  const [branchPage, setBranchPage] = useState(1);
+  const branchTotalPages = Math.max(1, Math.ceil(branches.length / BRANCHES_PER_PAGE));
+  const paginatedBranches = useMemo(
+    () =>
+      branches
+        .map((branch, index) => ({ branch, index }))
+        .slice((branchPage - 1) * BRANCHES_PER_PAGE, branchPage * BRANCHES_PER_PAGE),
+    [branches, branchPage],
+  );
+  const goToBranchPage = (index: number) => setBranchPage(Math.floor(index / BRANCHES_PER_PAGE) + 1);
+
+  useEffect(() => {
+    if (branchPage > branchTotalPages) {
+      setBranchPage(branchTotalPages);
+    }
+  }, [branchPage, branchTotalPages]);
+
   const showNotice = useCallback((nextNotice: Notice) => {
     setNotice(nextNotice);
     setSubmitStatus(nextNotice.type);
@@ -121,7 +153,11 @@ export function AdminSettingsTab() {
   };
 
   const addBranch = () => {
-    setBranches((current) => [...current, createBranchDraft()]);
+    setBranches((current) => {
+      const next = [...current, createBranchDraft()];
+      goToBranchPage(next.length - 1);
+      return next;
+    });
   };
 
   const duplicateBranch = (index: number) => {
@@ -138,6 +174,7 @@ export function AdminSettingsTab() {
         locationUrl: source.locationUrl.trim() || undefined,
       });
 
+      goToBranchPage(index + 1);
       return [...current.slice(0, index + 1), duplicate, ...current.slice(index + 1)];
     });
   };
@@ -150,6 +187,7 @@ export function AdminSettingsTab() {
       const next = [...current];
       const [item] = next.splice(index, 1);
       next.splice(nextIndex, 0, item);
+      goToBranchPage(nextIndex);
       return next;
     });
   };
@@ -191,6 +229,7 @@ export function AdminSettingsTab() {
         nextErrors[`branch-${invalidBranchIndex}-address`] = "Escribe la dirección de la sucursal.";
       }
       setFieldErrors(nextErrors);
+      goToBranchPage(invalidBranchIndex);
       showNotice({
         type: "error",
         text: `Revisa la sucursal ${invalidBranchIndex + 1}: necesita nombre y dirección.`,
@@ -215,6 +254,7 @@ export function AdminSettingsTab() {
     });
     if (invalidLocationIndex >= 0) {
       setFieldErrors({ [`branch-${invalidLocationIndex}-locationUrl`]: "Pega un enlace completo de Google Maps o Waze." });
+      goToBranchPage(invalidLocationIndex);
       showNotice({
         type: "error",
         text: `El enlace de ubicación de la sucursal ${invalidLocationIndex + 1} no es válido.`,
@@ -416,7 +456,7 @@ export function AdminSettingsTab() {
         </div>
 
         <div className="mt-4 space-y-4">
-          {branches.map((branch, index) => (
+          {paginatedBranches.map(({ branch, index }) => (
             <section key={branch.id} className="rounded-[24px] border border-slate-200 bg-white p-4">
               <div className="flex flex-col gap-3 md:flex-row md:items-start md:justify-between">
                 <div>
@@ -518,6 +558,30 @@ export function AdminSettingsTab() {
             </section>
           ))}
         </div>
+
+        {branchTotalPages > 1 ? (
+          <div className="mt-5 flex items-center justify-center gap-2">
+            <button
+              type="button"
+              onClick={() => setBranchPage((page) => Math.max(1, page - 1))}
+              disabled={branchPage === 1}
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ChevronLeft size={16} /> Anterior
+            </button>
+            <span className="px-2 text-sm font-semibold text-slate-600">
+              Página {branchPage} de {branchTotalPages}
+            </span>
+            <button
+              type="button"
+              onClick={() => setBranchPage((page) => Math.min(branchTotalPages, page + 1))}
+              disabled={branchPage === branchTotalPages}
+              className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-4 py-2 text-sm font-semibold text-slate-700 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              Siguiente <ChevronRight size={16} />
+            </button>
+          </div>
+        ) : null}
       </div>
 
       <div className="mt-4 flex flex-col gap-2 border-t border-slate-100 pt-4 md:flex-row md:items-center md:justify-between">

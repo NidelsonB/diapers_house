@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { ExternalLink, Globe2, MapPin, Menu, MessageCircle, Phone, Share2, X } from "lucide-react";
+import { Globe2, MapPin, Menu, MessageCircle, Phone, Share2, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { buildWhatsAppLink, withBasePath } from "@/lib/utils";
@@ -20,6 +20,11 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
   const { data } = useSiteStore();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const totalBranches = data.settings.branches.length;
+  const previewBranchNames = data.settings.branches
+    .slice(0, 3)
+    .map((branch) => branch.name)
+    .join(", ");
+  const remainingBranchCount = Math.max(totalBranches - 3, 0);
 
   const whatsappUrl = useMemo(
     () =>
@@ -152,35 +157,15 @@ export function SiteShell({ children }: { children: React.ReactNode }) {
           <div className="space-y-4">
             <h4 className="text-sm font-extrabold tracking-[0.06em] text-brand-primary">Sucursales</h4>
             <p className="text-sm text-slate-600">
-              Te atendemos en {totalBranches} sucursales. Aquí te mostramos todas.
-              {" "}
-              <Link href="/contacto" className="font-semibold text-brand-primary hover:underline">
-                Ver todas las sucursales
-              </Link>
+              Te atendemos en {previewBranchNames} y {remainingBranchCount} sucursal{remainingBranchCount === 1 ? "" : "es"} más en El Salvador.
             </p>
-            <div className="space-y-3 text-sm text-slate-600">
-              {data.settings.branches.map((branch) => (
-                <div key={branch.id} className="rounded-xl bg-slate-50 p-3">
-                  <p className="font-bold text-slate-900">{branch.name}</p>
-                  <p>{branch.address}</p>
-                  <p>{branch.hours}</p>
-                  {branch.locationUrl ? (
-                    <div className="mt-3">
-                      <a
-                        href={branch.locationUrl}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 transition hover:border-brand-primary hover:text-brand-primary"
-                      >
-                        <MapPin size={13} />
-                        Abrir ubicación
-                        <ExternalLink size={12} />
-                      </a>
-                    </div>
-                  ) : null}
-                </div>
-              ))}
-            </div>
+            <Link
+              href="/contacto"
+              className="inline-flex items-center gap-1 text-sm font-semibold text-brand-primary hover:underline"
+            >
+              <MapPin size={14} />
+              Ver todas las sucursales
+            </Link>
           </div>
         </div>
         <div className="border-t border-slate-200 px-4 py-4 text-center text-xs text-slate-500">

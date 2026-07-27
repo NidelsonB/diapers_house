@@ -77,6 +77,8 @@ function CatalogContent() {
             <span className="sr-only">Buscar productos</span>
             <Search className="absolute left-4 top-3.5 text-slate-400" size={18} />
             <input
+              id="catalog-search"
+              name="catalog-search"
               value={search}
               onChange={(event) => {
                 setSearch(event.target.value);

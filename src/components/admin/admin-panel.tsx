@@ -5,6 +5,7 @@ import { useRouter } from "next/navigation";
 import { BarChart3, ClipboardList, FolderTree, LayoutTemplate, LogOut, PackageSearch, RotateCcw } from "lucide-react";
 
 import { useSiteStore } from "@/providers/site-store";
+import { DbHealthBadge } from "@/components/admin/db-health-badge";
 import { AdminDashboardTab } from "@/components/admin/admin-dashboard-tab";
 import { AdminProductsTab } from "@/components/admin/admin-products-tab";
 import { AdminCategoriesTab } from "@/components/admin/admin-categories-tab";
@@ -43,7 +44,8 @@ export function AdminPanel() {
           <h1 className="text-3xl font-black text-slate-900">Gestión integral del negocio</h1>
           <p className="mt-1 text-sm text-slate-600">Catálogo, pedidos, inventario y contenido principal en una sola vista.</p>
         </div>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap items-center gap-2">
+          <DbHealthBadge />
           <button
             type="button"
             onClick={() => {

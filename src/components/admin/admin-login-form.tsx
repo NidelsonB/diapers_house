@@ -4,10 +4,13 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { LockKeyhole } from "lucide-react";
 
+import { useSiteStore } from "@/providers/site-store";
+
 export function AdminLoginForm() {
   const router = useRouter();
-  const [email, setEmail] = useState("admin");
-  const [password, setPassword] = useState("admin");
+  const { refreshAdminData } = useSiteStore();
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -31,8 +34,12 @@ export function AdminLoginForm() {
       }
 
       setError("");
+      // AdminLayout's SiteStoreProvider persists across this navigation (shared
+      // route-group layout), so its isAdminAuthenticated stays stale from the
+      // pre-login mount unless we sync it here — otherwise AdminPanel's guard
+      // effect sees the old "false" and bounces straight back to /admin/login.
+      await refreshAdminData();
       router.replace("/admin");
-      router.refresh();
     } catch {
       setError("No fue posible iniciar sesion. Revisa la conexion o intenta otra vez.");
     } finally {
@@ -58,6 +65,7 @@ export function AdminLoginForm() {
               type="text"
               value={email}
               onChange={(event) => setEmail(event.target.value)}
+              placeholder="correo@ejemplo.com"
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-primary"
               autoComplete="username"
             />
@@ -69,7 +77,9 @@ export function AdminLoginForm() {
               type="password"
               value={password}
               onChange={(event) => setPassword(event.target.value)}
+              placeholder="••••••••"
               className="w-full rounded-2xl border border-slate-200 bg-slate-50 px-4 py-3 outline-none focus:border-brand-primary"
+              autoComplete="current-password"
             />
           </label>
 
@@ -83,12 +93,6 @@ export function AdminLoginForm() {
             {isSubmitting ? "Validando..." : "Ingresar al panel"}
           </button>
         </form>
-
-        <div className="mt-5 rounded-2xl bg-brand-soft p-4 text-sm text-slate-700">
-          <p className="font-bold text-brand-secondary">Administrador inicial</p>
-          <p>Correo: admin</p>
-          <p>Clave: admin</p>
-        </div>
       </div>
     </div>
   );

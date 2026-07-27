@@ -62,6 +62,7 @@ interface SiteStoreValue {
   createOrder: (payload: CheckoutPayload) => Promise<{ success: boolean; orderId: string; error?: string }>;
   adminLogin: (email: string, password: string) => Promise<boolean>;
   adminLogout: () => Promise<void>;
+  refreshAdminData: () => Promise<boolean>;
   upsertProduct: (product: Product) => Promise<void>;
   deleteProduct: (id: string) => Promise<void>;
   upsertCategory: (category: Category) => Promise<void>;
@@ -133,7 +134,7 @@ export function SiteStoreProvider({
   const [cart, setCart] = useState<CartItem[]>([]);
   const cartHydrated = useRef(false);
   const adminDataLoaded = useRef(false);
-  const isReady = true;
+  const [isReady, setIsReady] = useState(false);
   const [isAdminAuthenticated, setIsAdminAuthenticated] = useState(initialIsAdminAuthenticated);
 
   // Write effect declared FIRST so it runs before the read effect on mount.
@@ -187,12 +188,11 @@ export function SiteStoreProvider({
   }, [refreshPublicData]);
 
   useEffect(() => {
-    if (!isReady) return;
-
     const syncSession = async () => {
       try {
         const response = await fetchJson<{ authenticated: boolean }>("/api/admin/session", { method: "GET" });
         setIsAdminAuthenticated(response.authenticated);
+        setIsReady(true);
 
         if (skipPublicBootstrap) {
           return;
@@ -201,6 +201,7 @@ export function SiteStoreProvider({
         await refreshPublicData();
       } catch {
         setIsAdminAuthenticated(false);
+        setIsReady(true);
 
         if (skipPublicBootstrap) {
           return;
@@ -211,7 +212,7 @@ export function SiteStoreProvider({
     };
 
     void syncSession();
-  }, [isReady, refreshPublicData, skipPublicBootstrap]);
+  }, [refreshPublicData, skipPublicBootstrap]);
 
   useEffect(() => {
     if (!isAdminAuthenticated) {
@@ -486,6 +487,7 @@ export function SiteStoreProvider({
       createOrder: createOrderAction,
       adminLogin,
       adminLogout,
+      refreshAdminData,
       upsertProduct: upsertProductAction,
       deleteProduct: deleteProductAction,
       upsertCategory: upsertCategoryAction,
@@ -509,6 +511,7 @@ export function SiteStoreProvider({
       deleteProductAction,
       isAdminAuthenticated,
       isReady,
+      refreshAdminData,
       removeFromCart,
       resetDemoDataAction,
       updateCartQuantity,
